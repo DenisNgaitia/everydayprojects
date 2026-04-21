@@ -1,13 +1,207 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>am-i-the-problem</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeroTrust Economics | Vision</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #09090b; /* zinc-950 */
+            color: #f4f4f5; /* zinc-100 */
+        }
+        
+        /* Subtle terminal scanline effect */
+        .crt-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.15;
+        }
+        
+        .transition-all-fast {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-hidden">
+    <div class="crt-overlay"></div>
+    
+    <!-- HEADER -->
+    <header class="border-b border-zinc-800 p-6 flex justify-between items-center z-10 relative bg-zinc-950/80 backdrop-blur-md">
+        <div class="flex items-center gap-4">
+            <div id="status-indicator" class="w-3 h-3 rounded-full bg-red-500 animate-pulse transition-colors duration-300 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
+            <h1 class="font-bold text-xl tracking-tighter uppercase text-zinc-100">ZeroTrust Economics</h1>
+        </div>
+        <nav>
+            <span class="text-zinc-500 mr-6 text-sm">SYS_STATE: <span id="sys-state-text" class="text-red-500 font-bold drop-shadow-md">VULNERABLE</span></span>
+            <span class="border border-zinc-700 bg-zinc-900 px-4 py-1 text-sm font-bold tracking-widest text-zinc-100">[ VISION ]</span>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow flex flex-col items-center justify-center p-8 z-10 relative w-full max-w-6xl mx-auto">
+        
+        <!-- STATE TOGGLE -->
+        <div class="mb-20 flex flex-col items-center">
+            <p class="text-zinc-500 text-xs mb-4 uppercase tracking-widest font-bold">Select Operational Paradigm</p>
+            <div class="relative flex items-center bg-zinc-900 border border-zinc-800 p-1 w-96 cursor-pointer group" onclick="toggleState()">
+                <!-- The sliding background -->
+                <div id="toggle-slider" class="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] bg-red-950/60 border border-red-500 transition-all-fast ease-in-out translate-x-0 shadow-[0_0_15px_rgba(239,68,68,0.2)]"></div>
+                
+                <!-- Buttons -->
+                <div class="flex-1 text-center py-4 z-10 font-bold text-sm transition-colors duration-300 text-red-400 tracking-widest" id="btn-legacy">
+                    LEGACY FIAT (KES)
+                </div>
+                <div class="flex-1 text-center py-4 z-10 font-bold text-sm transition-colors duration-300 text-zinc-600 tracking-widest" id="btn-zerotrust">
+                    ZEROTRUST (USDC)
+                </div>
+            </div>
+        </div>
+
+        <!-- DATA GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-12">
+            <!-- Metric 1: Real Yield -->
+            <div id="card-1" class="border border-red-900/50 bg-red-950/10 p-6 flex flex-col transition-all-fast h-40 justify-between">
+                <div class="flex justify-between items-start">
+                    <span class="text-zinc-500 text-xs uppercase font-bold tracking-wide">Real Yield<br><span class="text-[10px] text-zinc-600 font-normal">(Adj. for Erosion)</span></span>
+                    <span class="text-zinc-700 text-xs">M_01</span>
+                </div>
+                <span id="metric-1-val" class="text-5xl font-bold text-red-500 transition-colors duration-300 drop-shadow-md">-6.50%</span>
+            </div>
+
+            <!-- Metric 2: Liquidity Status -->
+            <div id="card-2" class="border border-red-900/50 bg-red-950/10 p-6 flex flex-col transition-all-fast h-40 justify-between">
+                <div class="flex justify-between items-start">
+                    <span class="text-zinc-500 text-xs uppercase font-bold tracking-wide">Liquidity Status<br><span class="text-[10px] text-zinc-600 font-normal">(Capital Velocity)</span></span>
+                    <span class="text-zinc-700 text-xs">M_02</span>
+                </div>
+                <span id="metric-2-val" class="text-2xl font-bold text-red-500 tracking-wide transition-colors duration-300 drop-shadow-md">TRAPPED /<br>ILLIQUID</span>
+            </div>
+
+            <!-- Metric 3: Sovereign Exposure -->
+            <div id="card-3" class="border border-red-900/50 bg-red-950/10 p-6 flex flex-col transition-all-fast h-40 justify-between">
+                <div class="flex justify-between items-start">
+                    <span class="text-zinc-500 text-xs uppercase font-bold tracking-wide">Sovereign Exposure<br><span class="text-[10px] text-zinc-600 font-normal">(Default Risk)</span></span>
+                    <span class="text-zinc-700 text-xs">M_03</span>
+                </div>
+                <span id="metric-3-val" class="text-2xl font-bold text-red-500 tracking-wide transition-colors duration-300 drop-shadow-md">HIGH /<br>CROWDED OUT</span>
+            </div>
+        </div>
+
+        <!-- NARRATIVE PANEL -->
+        <div id="narrative-panel" class="w-full border-l-4 border-red-500 bg-zinc-900 p-8 transition-all-fast relative overflow-hidden">
+            <div id="narrative-glow" class="absolute top-0 left-0 w-2 h-full bg-red-500 opacity-20 blur-xl transition-colors duration-300"></div>
+            <h3 class="text-xs text-zinc-500 uppercase tracking-widest mb-4 font-bold">Active Thesis // Execution Logic</h3>
+            <p id="narrative-text" class="text-zinc-300 leading-relaxed text-base md:text-lg transition-opacity duration-200">
+                Sovereign debt obligations have triggered systemic currency depreciation and negative real yields. Capital is actively being crowded out by government paper, resulting in severe wealth erosion.
+            </p>
+        </div>
+
+    </main>
+
+    <script>
+        let isLegacy = true;
+
+        const STATE = {
+            legacy: {
+                sliderClass: 'bg-red-950/60 border-red-500 translate-x-0 shadow-[0_0_15px_rgba(239,68,68,0.2)]',
+                btnLegacy: 'text-red-400',
+                btnZeroTrust: 'text-zinc-600',
+                metric1: '-6.50%',
+                metric2: 'TRAPPED /\nILLIQUID',
+                metric3: 'HIGH /\nCROWDED OUT',
+                cardBorder: 'border-red-900/50',
+                cardBg: 'bg-red-950/10',
+                textColor: 'text-red-500',
+                narrativeBorder: 'border-red-500',
+                narrativeGlow: 'bg-red-500',
+                narrativeText: 'Sovereign debt obligations have triggered systemic currency depreciation and negative real yields. Capital is actively being crowded out by government paper, resulting in severe wealth erosion.',
+                sysState: 'VULNERABLE',
+                sysStateColor: 'text-red-500',
+                indicatorColor: 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]'
+            },
+            zerotrust: {
+                sliderClass: 'bg-cyan-950/60 border-cyan-400 translate-x-full shadow-[0_0_15px_rgba(34,211,238,0.2)]',
+                btnLegacy: 'text-zinc-600',
+                btnZeroTrust: 'text-cyan-400',
+                metric1: '+4.00%',
+                metric2: 'FRICTIONLESS\n& SCALABLE',
+                metric3: 'ZERO\n(DECENTRALIZED)',
+                cardBorder: 'border-cyan-900/50',
+                cardBg: 'bg-cyan-950/10',
+                textColor: 'text-cyan-400',
+                narrativeBorder: 'border-cyan-400',
+                narrativeGlow: 'bg-cyan-400',
+                narrativeText: 'Capital mathematically secured via decentralized liquidity protocols. Exposure to domestic fiat depreciation eliminated, ensuring absolute preservation of purchasing power across borders.',
+                sysState: 'SECURED',
+                sysStateColor: 'text-cyan-400',
+                indicatorColor: 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]'
+            }
+        };
+
+        function toggleState() {
+            isLegacy = !isLegacy;
+            const state = isLegacy ? STATE.legacy : STATE.zerotrust;
+            const oldState = !isLegacy ? STATE.legacy : STATE.zerotrust;
+
+            // Update Slider
+            const slider = document.getElementById('toggle-slider');
+            slider.className = `absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] transition-all-fast ease-in-out border ${state.sliderClass}`;
+            
+            // Update Buttons
+            document.getElementById('btn-legacy').className = `flex-1 text-center py-4 z-10 font-bold text-sm transition-colors duration-300 tracking-widest ${state.btnLegacy}`;
+            document.getElementById('btn-zerotrust').className = `flex-1 text-center py-4 z-10 font-bold text-sm transition-colors duration-300 tracking-widest ${state.btnZeroTrust}`;
+
+            // Update Header status
+            const sysStateText = document.getElementById('sys-state-text');
+            sysStateText.innerText = state.sysState;
+            sysStateText.className = `font-bold drop-shadow-md ${state.sysStateColor}`;
+            document.getElementById('status-indicator').className = `w-3 h-3 rounded-full animate-pulse transition-colors duration-300 ${state.indicatorColor}`;
+
+            // Update Cards Styling
+            [1, 2, 3].forEach(id => {
+                const card = document.getElementById(`card-${id}`);
+                card.classList.remove(oldState.cardBorder, oldState.cardBg);
+                card.classList.add(state.cardBorder, state.cardBg);
+                
+                const val = document.getElementById(`metric-${id}-val`);
+                val.classList.remove(oldState.textColor);
+                val.classList.add(state.textColor);
+            });
+
+            // Update Metric Values (with short fade out/in effect)
+            [1, 2, 3].forEach(id => {
+                const val = document.getElementById(`metric-${id}-val`);
+                val.style.opacity = '0';
+                setTimeout(() => {
+                    val.innerText = state[`metric${id}`];
+                    val.style.opacity = '1';
+                }, 150);
+            });
+
+            // Update Narrative
+            const narrativePanel = document.getElementById('narrative-panel');
+            narrativePanel.classList.remove(oldState.narrativeBorder);
+            narrativePanel.classList.add(state.narrativeBorder);
+            
+            const narrativeGlow = document.getElementById('narrative-glow');
+            narrativeGlow.classList.remove(oldState.narrativeGlow);
+            narrativeGlow.classList.add(state.narrativeGlow);
+            
+            const narrativeText = document.getElementById('narrative-text');
+            narrativeText.style.opacity = '0';
+            setTimeout(() => {
+                narrativeText.innerText = state.narrativeText;
+                narrativeText.style.opacity = '1';
+            }, 150);
+        }
+    </script>
+</body>
 </html>
