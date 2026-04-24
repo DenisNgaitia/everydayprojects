@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amani P2P Protocol | Interactive Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #faf8f5; color: #2d3748; }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 40vh; 
+            max-height: 400px; 
+        }
+        @media (min-width: 768px) { 
+            .chart-container { height: 350px; } 
+        }
+        .step-active { background-color: #2c5282; color: white; border-color: #2c5282; }
+        .step-inactive { background-color: #edf2f7; color: #4a5568; border-color: #cbd5e0; }
+        .tab-active { border-bottom-width: 4px; border-color: #2c5282; color: #2c5282; font-weight: 600; }
+        .tab-inactive { border-bottom-width: 4px; border-color: transparent; color: #718096; }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-200 selection:text-blue-900">
+
+    <!-- Chosen Palette: Warm Neutrals with Slate Blue and Emerald Accents (#faf8f5 background, #2c5282 primary, #38a169 success) -->
+    <!-- Application Structure Plan: The SPA is structured as a sequential, interactive pitch document designed to walk stakeholders through the systemic crisis, the protocol's solution, the technical flow, and regulatory alignment. A sticky navigation allows quick jumps. The 'System Flow' uses an interactive stepper to avoid overwhelming text, and 'The Crisis' uses a comparative radar chart to instantly visualize the advantage of Amani over traditional CEXs, prioritizing user comprehension of complex DeFi concepts. -->
+    <!-- Visualization & Content Choices: 
+         - Report Info: CEX flaws vs Amani benefits -> Goal: Compare -> Viz: Chart.js Radar Chart -> Interaction: Hover tooltips -> Justification: Clearly contrasts risk/privacy profiles -> Library: Chart.js.
+         - Report Info: 6-step System Flow -> Goal: Process explanation -> Viz: HTML/CSS Interactive Stepper -> Interaction: Clickable steps reveal details -> Justification: Breaks down complex blockchain operations into digestible chunks -> Library: Vanilla JS + DOM manipulation.
+         - Report Info: Architecture & VASP Alignment -> Goal: Organize text -> Viz: Interactive Tabbed Interface -> Interaction: Toggle between Tech Stack and Regulatory features -> Justification: Groups related technical specifications cleanly. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="fixed w-full bg-[#faf8f5]/90 backdrop-blur-md border-b border-gray-200 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center font-bold text-xl tracking-tight text-blue-900">
+                    <span class="mr-2">🛡️</span> AMANI PROTOCOL
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#crisis" class="text-gray-600 hover:text-blue-800 transition-colors">The Crisis</a>
+                    <a href="#solution" class="text-gray-600 hover:text-blue-800 transition-colors">Core Pillars</a>
+                    <a href="#flow" class="text-gray-600 hover:text-blue-800 transition-colors">System Flow</a>
+                    <a href="#architecture" class="text-gray-600 hover:text-blue-800 transition-colors">Architecture</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center">
+        <div class="inline-block px-4 py-1 rounded-full bg-blue-100 text-blue-800 font-semibold text-sm mb-6 tracking-wide uppercase">
+            Document Version: 1.0.0
+        </div>
+        <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            Trustless, zk-Compliant <br/><span class="text-blue-800">P2P Fiat/Crypto Escrow</span>
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-10">
+            Mitigating CEX freezes and aligning with Kenya's VASP 2026 regulations through mathematical compliance and decentralized architecture.
+        </p>
+        <a href="#crisis" class="inline-flex items-center justify-center px-8 py-4 text-base font-medium text-white bg-blue-800 border border-transparent rounded-lg hover:bg-blue-900 transition-all shadow-lg hover:shadow-xl">
+            Explore the Architecture &#8595;
+        </a>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 space-y-32">
+
+        <section id="crisis" class="scroll-mt-24">
+            <div class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 border-l-4 border-blue-800 pl-4">The Systemic Crisis</h2>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    This section illustrates the current vulnerabilities in the Kenyan crypto ecosystem. Centralized Exchanges (CEXs) are arbitrarily freezing retail P2P accounts to comply with state mandates, trapping user funds. The radar chart below compares the systemic risk profile of the traditional centralized model against the proposed Amani Protocol framework.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">⚠️</span>
+                            <h3 class="text-xl font-semibold text-gray-900">Arbitrary Asset Seizure</h3>
+                        </div>
+                        <p class="text-gray-600">CEXs hold escrowed funds centrally. Upon law enforcement requests (DCI/ATPU), they instantly trap user funds without due process or formal court orders to protect their own licenses.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl border border-orange-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">👁️</span>
+                            <h3 class="text-xl font-semibold text-gray-900">Privacy Friction</h3>
+                        </div>
+                        <p class="text-gray-600">Draft VASP Regulations 2026 mandate zero anonymity. Users surrender sensitive PII (KRA PINs, National IDs) to foreign exchanges, creating massive data breach targets.</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-yellow-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-3">
+                            <span class="text-2xl mr-3">⏳</span>
+                            <h3 class="text-xl font-semibold text-gray-900">Single Point of Failure</h3>
+                        </div>
+                        <p class="text-gray-600">Dispute resolutions rely entirely on centralized, often unresponsive support desks, creating massive financial bottlenecks for local traders.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col justify-center items-center h-full">
+                    <h3 class="text-center text-lg font-bold text-gray-800 mb-6">Risk & Efficacy Profile: CEX vs Amani</h3>
+                    <div class="chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="scroll-mt-24">
+            <div class="mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 border-l-4 border-green-600 pl-4">The Amani Solution</h2>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    Amani P2P shifts trust from corporate entities to immutable code. This section details the three core pillars of the protocol, explaining how compliance is proven mathematically rather than managed manually, thereby protecting users from arbitrary seizures.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-blue-800 hover:-translate-y-1 transition-transform">
+                    <div class="text-4xl mb-4">🔐</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Non-Custodial Escrow</h3>
+                    <p class="text-gray-600">Assets are locked in an immutable EVM smart contract. Only private key holders (Buyer, Seller, Arbitrator) can trigger release. The state cannot freeze the contract via email.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-purple-600 hover:-translate-y-1 transition-transform">
+                    <div class="text-4xl mb-4">🎭</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">zk-KYC Identity</h3>
+                    <p class="text-gray-600">Users verify identity once with a regulated oracle to receive a Soulbound Token (SBT). Proves compliance ("Not on AML list") without revealing actual names or IDs on-chain.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-green-600 hover:-translate-y-1 transition-transform">
+                    <div class="text-4xl mb-4">⚡</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">API-Verified Settlement</h3>
+                    <p class="text-gray-600">Integration with local fiat rails (M-Pesa Daraja API) via a decentralized oracle automatically verifies fiat settlement, bridging off-chain payments with on-chain escrow.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="flow" class="scroll-mt-24 bg-white p-8 lg:p-12 rounded-3xl shadow-lg border border-gray-100">
+            <div class="mb-10">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 border-l-4 border-blue-800 pl-4">Interactive System Flow</h2>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    Understanding the operational mechanics is crucial. This interactive module breaks down the Amani P2P transaction lifecycle. Click through the sequential steps below to explore how the decentralized order book, zk-KYC, and smart contract escrow interact during a trade.
+                </p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-12">
+                <div class="w-full lg:w-1/3 flex flex-col space-y-3" id="flow-buttons">
+                </div>
+
+                <div class="w-full lg:w-2/3 bg-gray-50 rounded-2xl p-8 border border-gray-200 relative overflow-hidden min-h-[300px] flex flex-col justify-center">
+                    <div class="absolute top-0 left-0 w-2 h-full bg-blue-800"></div>
+                    <h3 id="flow-title" class="text-2xl font-bold text-gray-900 mb-4">Select a Step</h3>
+                    <p id="flow-desc" class="text-lg text-gray-700 leading-relaxed mb-6">Click on the transaction steps to view the technical flow and operational mechanics.</p>
+                    
+                    <div id="flow-actors" class="flex flex-wrap gap-3 mt-auto pt-6 border-t border-gray-200">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture" class="scroll-mt-24">
+            <div class="mb-10">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 border-l-4 border-purple-800 pl-4">Architecture & Compliance</h2>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    This section outlines the technical stack required for the Minimum Viable Product (MVP) and details how this decentralized architecture fundamentally beats the restrictive Draft VASP Regulations 2026 by complying with the law's intent without sacrificing user sovereignty.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+                <div class="flex flex-col sm:flex-row border-b border-gray-200">
+                    <button id="tab-tech" class="flex-1 py-4 px-6 text-center focus:outline-none transition-all tab-active">MVP Tech Stack</button>
+                    <button id="tab-vasp" class="flex-1 py-4 px-6 text-center focus:outline-none transition-all tab-inactive bg-gray-50 hover:bg-gray-100">VASP 2026 Alignment</button>
+                </div>
+                
+                <div id="content-tech" class="p-8 lg:p-12 transition-opacity duration-300">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-3">Smart Contracts</h4>
+                            <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <span class="text-xl mr-3">⚙️</span>
+                                <div>
+                                    <p class="font-bold text-gray-900">Solidity Engine</p>
+                                    <p class="text-sm text-gray-600">Deployed on low-fee L2s (Base, Arbitrum, Polygon). Handles Create, Lock, Release, and Dispute.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-3">Identity Layer</h4>
+                            <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <span class="text-xl mr-3">🆔</span>
+                                <div>
+                                    <p class="font-bold text-gray-900">Polygon ID / zCloak</p>
+                                    <p class="text-sm text-gray-600">Zero-Knowledge layer for issuing and verifying verifiable human credentials required for interaction.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-3">Frontend & Web3</h4>
+                            <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <span class="text-xl mr-3">🖥️</span>
+                                <div>
+                                    <p class="font-bold text-gray-900">Next.js + viem/wagmi</p>
+                                    <p class="text-sm text-gray-600">React UI styled with Tailwind, authenticated via WalletConnect/MetaMask.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-sm uppercase tracking-widest text-gray-500 font-bold mb-3">Infrastructure</h4>
+                            <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <span class="text-xl mr-3">🗄️</span>
+                                <div>
+                                    <p class="font-bold text-gray-900">Off-Chain Relayer & Multi-Sig</p>
+                                    <p class="text-sm text-gray-600">Node.js/PostgreSQL order book (0x style). 2-of-3 multi-sig for community-vetted arbitration fallback.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-vasp" class="p-8 lg:p-12 hidden transition-opacity duration-300 bg-blue-50/30">
+                    <div class="space-y-6">
+                        <div class="flex flex-col sm:flex-row gap-6 items-start">
+                            <div class="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-bold text-xl">1</div>
+                            <div>
+                                <h4 class="text-xl font-bold text-gray-900 mb-2">No Anonymity (VASP Compliant)</h4>
+                                <p class="text-gray-700">To interact with the Amani contract, a wallet <strong>must</strong> hold a valid zk-KYC token. Criminals and unverified entities are mathematically barred from the platform, satisfying strict AML monitoring intents.</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-6 items-start">
+                            <div class="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-bold text-xl">2</div>
+                            <div>
+                                <h4 class="text-xl font-bold text-gray-900 mb-2">No Centralized Custody</h4>
+                                <p class="text-gray-700">Because Amani does not hold user funds in corporate wallets, it operates technically outside the purview of standard VASP custodian definitions, pushing liability to edge users and removing the central attack vector for arbitrary seizures.</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-6 items-start">
+                            <div class="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-bold text-xl">3</div>
+                            <div>
+                                <h4 class="text-xl font-bold text-gray-900 mb-2">Immutable Auditing</h4>
+                                <p class="text-gray-700">The state and regulators can view the public on-chain ledger to verify that 100% of volume passed exclusively through KYC-verified wallets, achieving compliance transparency without needing a backdoor to a central database.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-900 text-gray-400 py-8 text-center border-t border-gray-800 mt-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <p class="mb-2">Amani Protocol MVP Pitch - Interactive Architecture Document</p>
+            <p class="text-sm">Designed for East Africa Crypto Ecosystem Analysis</p>
+        </div>
+    </footer>
+
+    <script>
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['User Custody Control', 'Identity Privacy', 'Dispute Efficiency', 'AML/CFT Efficacy'],
+                datasets: [
+                    {
+                        label: 'Traditional CEX',
+                        data: [10, 20, 30, 90],
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Amani Protocol',
+                        data: [100, 90, 85, 100],
+                        backgroundColor: 'rgba(43, 108, 176, 0.2)',
+                        borderColor: 'rgba(43, 108, 176, 1)',
+                        pointBackgroundColor: 'rgba(43, 108, 176, 1)',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        pointLabels: {
+                            font: { family: 'Inter', size: 12, weight: '600' },
+                            color: '#4a5568'
+                        },
+                        ticks: { display: false, min: 0, max: 100 }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Inter' } } },
+                    tooltip: {
+                        backgroundColor: 'rgba(26, 32, 44, 0.9)',
+                        titleFont: { family: 'Inter', size: 14 },
+                        bodyFont: { family: 'Inter', size: 13 },
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                }
+            }
+        });
+
+        const flowData = [
+            {
+                step: 1,
+                title: "Onboarding & KYC",
+                desc: "User connects wallet and passes KYC via a 3rd party regulated oracle. The oracle issues a cryptographic zk-Proof Soulbound Token (SBT) directly to the user's wallet.",
+                actors: ["👤 User", "🔗 Web3 Wallet", "⚖️ Regulated Oracle"]
+            },
+            {
+                step: 2,
+                title: "Order Creation (Maker)",
+                desc: "User creates a listing (e.g., 'Sell 100 USDT for KES'). This order is posted to the Amani off-chain relayer without locking any funds at this stage.",
+                actors: ["👤 Maker", "🗄️ Off-chain Relayer"]
+            },
+            {
+                step: 3,
+                title: "Escrow Lock (Taker)",
+                desc: "A buyer accepts the offer. The seller's 100 USDT is automatically moved from their wallet into the immutable 'AmaniEscrow.sol' smart contract. Funds are now cryptographically locked.",
+                actors: ["👤 Taker", "👤 Maker", "⚙️ AmaniEscrow.sol"]
+            },
+            {
+                step: 4,
+                title: "Fiat Transfer",
+                desc: "The buyer sends Kenyan Shillings (KES) via local rails like M-Pesa directly to the Seller's phone number. This transaction occurs strictly off-chain.",
+                actors: ["👤 Taker", "📱 M-Pesa API", "👤 Maker"]
+            },
+            {
+                step: 5,
+                title: "Release Protocol",
+                desc: "The seller verifies receipt of the fiat on their phone and clicks 'Release' on the dApp interface. The smart contract immediately transfers the 100 USDT to the buyer.",
+                actors: ["👤 Maker", "🖥️ dApp UI", "⚙️ AmaniEscrow.sol", "👤 Taker"]
+            },
+            {
+                step: 6,
+                title: "Dispute Resolution (Edge Case)",
+                desc: "If fiat is sent but the seller doesn't release crypto, the buyer raises a dispute. The selected community Arbitrator requests off-chain M-Pesa statements and executes a multi-sig release if verified.",
+                actors: ["👤 Taker", "🧑‍⚖️ Arbitrator", "🔐 Multi-Sig Contract"]
+            }
+        ];
+
+        const flowButtonsContainer = document.getElementById('flow-buttons');
+        const flowTitle = document.getElementById('flow-title');
+        const flowDesc = document.getElementById('flow-desc');
+        const flowActors = document.getElementById('flow-actors');
+        let currentStep = 0;
+
+        function renderFlow() {
+            flowButtonsContainer.innerHTML = '';
+            flowData.forEach((data, index) => {
+                const btn = document.createElement('button');
+                const isActive = index === currentStep;
+                btn.className = `w-full text-left px-6 py-4 rounded-xl border-2 font-semibold transition-all ${isActive ? 'step-active shadow-md transform scale-105 ml-2 lg:ml-4' : 'step-inactive hover:bg-gray-200'}`;
+                btn.innerHTML = `<span class="inline-block w-8 h-8 text-center leading-8 rounded-full ${isActive ? 'bg-white text-blue-800' : 'bg-gray-300 text-gray-600'} mr-3">${data.step}</span> ${data.title}`;
+                btn.onclick = () => {
+                    currentStep = index;
+                    updateFlowDisplay();
+                    renderFlow();
+                };
+                flowButtonsContainer.appendChild(btn);
+            });
+        }
+
+        function updateFlowDisplay() {
+            const data = flowData[currentStep];
+            flowTitle.style.opacity = 0;
+            flowDesc.style.opacity = 0;
+            flowActors.style.opacity = 0;
+            
+            setTimeout(() => {
+                flowTitle.textContent = `Step ${data.step}: ${data.title}`;
+                flowDesc.textContent = data.desc;
+                
+                flowActors.innerHTML = '<span class="text-sm font-semibold text-gray-500 uppercase tracking-wide mr-2 self-center">Actors Involved:</span>';
+                data.actors.forEach(actor => {
+                    const badge = document.createElement('span');
+                    badge.className = 'px-3 py-1 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-700 shadow-sm';
+                    badge.textContent = actor;
+                    flowActors.appendChild(badge);
+                });
+
+                flowTitle.style.transition = 'opacity 0.3s ease';
+                flowDesc.style.transition = 'opacity 0.3s ease';
+                flowActors.style.transition = 'opacity 0.3s ease';
+                flowTitle.style.opacity = 1;
+                flowDesc.style.opacity = 1;
+                flowActors.style.opacity = 1;
+            }, 150);
+        }
+
+        renderFlow();
+        updateFlowDisplay();
+
+        const tabTech = document.getElementById('tab-tech');
+        const tabVasp = document.getElementById('tab-vasp');
+        const contentTech = document.getElementById('content-tech');
+        const contentVasp = document.getElementById('content-vasp');
+
+        function switchTab(tab) {
+            if (tab === 'tech') {
+                tabTech.className = "flex-1 py-4 px-6 text-center focus:outline-none transition-all tab-active bg-white";
+                tabVasp.className = "flex-1 py-4 px-6 text-center focus:outline-none transition-all tab-inactive bg-gray-50 hover:bg-gray-100";
+                contentTech.classList.remove('hidden');
+                contentVasp.classList.add('hidden');
+            } else {
+                tabVasp.className = "flex-1 py-4 px-6 text-center focus:outline-none transition-all tab-active bg-blue-50/30";
+                tabTech.className = "flex-1 py-4 px-6 text-center focus:outline-none transition-all tab-inactive bg-gray-50 hover:bg-gray-100";
+                contentVasp.classList.remove('hidden');
+                contentTech.classList.add('hidden');
+            }
+        }
+
+        tabTech.addEventListener('click', () => switchTab('tech'));
+        tabVasp.addEventListener('click', () => switchTab('vasp'));
+
+    </script>
+</body>
+</html>
