@@ -2,18 +2,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import finance, forge, social, vybe, gcode
 from app.core.database import engine
-from app.models.user import Base as UserBase
-from app.models.transaction import Base as TransactionBase
-from app.models.social import Base as SocialBase
-from app.models.marketplace import Base as MarketplaceBase
-from app.models.subscription import Base as SubscriptionBase
+from app.models import Base
 
-# Create database tables automatically
-UserBase.metadata.create_all(bind=engine)
-TransactionBase.metadata.create_all(bind=engine)
-SocialBase.metadata.create_all(bind=engine)
-MarketplaceBase.metadata.create_all(bind=engine)
-SubscriptionBase.metadata.create_all(bind=engine)
+# Import all model modules so their tables are registered on the shared Base
+import app.models.user
+import app.models.transaction
+import app.models.social
+import app.models.marketplace
+import app.models.subscription
+
+# Create all database tables from the single shared Base
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="ComradeOS API",

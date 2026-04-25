@@ -1,8 +1,7 @@
 import uuid
-from sqlalchemy import Column, String, Float, DateTime, Enum, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Float, DateTime, Enum, ForeignKey, Uuid
 from datetime import datetime
-from .user import Base
+from app.models import Base
 import enum
 
 class TransactionType(str, enum.Enum):
@@ -12,8 +11,8 @@ class TransactionType(str, enum.Enum):
 class Transaction(Base):
     __tablename__ = "transactions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id = Column(Uuid, ForeignKey("users.id"))
     amount = Column(Float, nullable=False)
     type = Column(Enum(TransactionType))
     category = Column(String(50))  # e.g., 'vybe', 'food', 'rent'

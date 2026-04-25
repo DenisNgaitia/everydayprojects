@@ -1,4 +1,4 @@
-version: '3.8'
+# docker-compose.yml for ComradeOS
 
 services:
   backend:
@@ -30,7 +30,7 @@ services:
       - "6379:6379"
 
   frontend:
-    image: node:18-alpine
+    image: node:20-alpine
     working_dir: /app
     volumes:
       - ./frontend:/app

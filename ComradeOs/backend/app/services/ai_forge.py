@@ -1,10 +1,26 @@
 import os
 import json
-from groq import Groq
 from typing import List, Dict
 
-# Assuming GROQ_API_KEY is set in the environment
-client = Groq(api_key=os.environ.get("GROQ_API_KEY", "mock_key_for_dev"))
+# Lazy-initialize the Groq client to avoid crashing at import time
+# when GROQ_API_KEY is not set
+_client = None
+
+def _get_groq_client():
+    global _client
+    if _client is None:
+        try:
+            from groq import Groq
+            api_key = os.environ.get("GROQ_API_KEY")
+            if api_key:
+                _client = Groq(api_key=api_key)
+            else:
+                print("GROQ_API_KEY not set. Forge AI will use fallback quests.")
+                return None
+        except Exception as e:
+            print(f"Failed to initialize Groq client: {e}")
+            return None
+    return _client
 
 def generate_quests_from_syllabus(syllabus_text: str) -> List[Dict]:
     """
@@ -28,6 +44,11 @@ def generate_quests_from_syllabus(syllabus_text: str) -> List[Dict]:
     {syllabus_text}
     """
 
+    client = _get_groq_client()
+    if client is None:
+        # Fallback for dev/demo if API key is missing
+        return _fallback_quests()
+
     try:
         chat_completion = client.chat.completions.create(
             messages=[
@@ -48,8 +69,11 @@ def generate_quests_from_syllabus(syllabus_text: str) -> List[Dict]:
         return json.loads(response_text)
     except Exception as e:
         print(f"Forge AI Error: {e}")
-        # Fallback for dev/demo if API key fails
-        return [
-            {"title": "Survive the Database CAT", "description": "Read Chapters 1-3", "xp_reward": 100, "type": "cat"},
-            {"title": "Submit OS Assignment", "description": "Write a bash script", "xp_reward": 50, "type": "assignment"}
-        ]
+        return _fallback_quests()
+
+def _fallback_quests() -> List[Dict]:
+    """Fallback quest data for dev/demo when Groq API is unavailable."""
+    return [
+        {"title": "Survive the Database CAT", "description": "Read Chapters 1-3", "xp_reward": 100, "type": "cat"},
+        {"title": "Submit OS Assignment", "description": "Write a bash script", "xp_reward": 50, "type": "assignment"}
+    ]
