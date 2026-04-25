@@ -1,0 +1,40 @@
+name: ComradeOS CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Syntax Check (MVP)
+        run: |
+          cd backend
+          python -m compileall app/
+
+  build-and-push:
+    needs: test-backend
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Docker Image
+        run: |
+          docker build -t comradeos-backend ./backend
+      - name: Mock Push to Registry
+        run: |
+          echo "In production, we would use AWS ECR login and docker push here."
+          echo "docker tag comradeos-backend:latest 1234567890.dkr.ecr.us-east-1.amazonaws.com/comradeos:latest"
