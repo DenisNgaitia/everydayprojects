@@ -77,3 +77,84 @@ def _fallback_quests() -> List[Dict]:
         {"title": "Survive the Database CAT", "description": "Read Chapters 1-3", "xp_reward": 100, "type": "cat"},
         {"title": "Submit OS Assignment", "description": "Write a bash script", "xp_reward": 50, "type": "assignment"}
     ]
+
+def generate_study_plan(syllabus_text: str) -> Dict:
+    """
+    Parses a syllabus text and uses Groq to generate a structured weekly study plan.
+    """
+    prompt = f"""
+    You are the AI engine for 'The Forge', an academic planner.
+    Read the following syllabus excerpt and generate a highly structured Week-by-Week study plan.
+    
+    Rules for JSON output:
+    - Root must be a JSON object with a single key "weeks" containing an array of objects.
+    - Each week object must have:
+      - "week_number": Integer
+      - "topic": String
+      - "learning_objectives": Array of Strings
+      - "suggested_hours": Integer
+    
+    Only output valid JSON object, nothing else. No markdown formatting.
+    
+    Syllabus Text:
+    {syllabus_text}
+    """
+
+    client = _get_groq_client()
+    if client is None:
+        return {"weeks": [{"week_number": 1, "topic": "Introduction", "learning_objectives": ["Read syllabus"], "suggested_hours": 2}]}
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are a strict JSON-only API. Only return valid JSON objects."},
+                {"role": "user", "content": prompt}
+            ],
+            model="llama3-8b-8192",
+            temperature=0.2,
+        )
+        return json.loads(chat_completion.choices[0].message.content)
+    except Exception as e:
+        print(f"Forge AI Error (Study Plan): {e}")
+        return {"weeks": [{"week_number": 1, "topic": "Introduction", "learning_objectives": ["Fallback due to error"], "suggested_hours": 2}]}
+
+
+def generate_quiz(topic_text: str) -> List[Dict]:
+    """
+    Uses Groq to generate a 5-question multiple-choice quiz based on the provided topic or syllabus text.
+    """
+    prompt = f"""
+    You are an academic AI generating quizzes for university students.
+    Generate a 5-question multiple choice quiz based on the following text.
+    
+    Rules for JSON output:
+    - Must be a JSON array of objects.
+    - Each object must have:
+      - "question": String
+      - "options": Array of 4 Strings
+      - "correct_answer": String (must match one of the options exactly)
+      - "explanation": String
+    
+    Only output valid JSON array, nothing else. No markdown formatting.
+    
+    Text:
+    {topic_text}
+    """
+
+    client = _get_groq_client()
+    if client is None:
+        return [{"question": "What is 1+1?", "options": ["1", "2", "3", "4"], "correct_answer": "2", "explanation": "Basic math."}]
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are a strict JSON-only API. Only return valid JSON arrays."},
+                {"role": "user", "content": prompt}
+            ],
+            model="llama3-8b-8192",
+            temperature=0.2,
+        )
+        return json.loads(chat_completion.choices[0].message.content)
+    except Exception as e:
+        print(f"Forge AI Error (Quiz): {e}")
+        return [{"question": "Fallback Question?", "options": ["A", "B", "C", "D"], "correct_answer": "A", "explanation": "Error occurred."}]

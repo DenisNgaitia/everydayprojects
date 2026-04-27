@@ -1,7 +1,31 @@
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import HelbStats from '@/components/HelbStats';
-import { ShieldAlert } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+import { ShieldAlert, LogOut, User } from 'lucide-react';
 
 export default function Dashboard() {
+  const { isAuthenticated, username, loadFromStorage, logout } = useAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    loadFromStorage();
+  }, [loadFromStorage]);
+
+  useEffect(() => {
+    // Only redirect after hydration check
+    if (typeof window !== 'undefined' && !localStorage.getItem('comradeos_token')) {
+      router.push('/auth');
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/auth');
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center bg-slate-900 pt-20">
       
@@ -12,9 +36,22 @@ export default function Dashboard() {
           </h1>
           <p className="text-slate-400 mt-1">Survive, Grind, Thrive.</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-950/50 border border-emerald-800 rounded-full text-emerald-400 text-sm font-bold">
-          <ShieldAlert size={16} />
-          Rep: 420
+        <div className="flex items-center gap-4">
+          {isAuthenticated && (
+            <>
+              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-950/50 border border-emerald-800 rounded-full text-emerald-400 text-sm font-bold">
+                <User size={16} />
+                {username}
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-slate-800 border border-slate-700 rounded-full text-slate-400 hover:text-red-400 hover:border-red-800 text-sm font-semibold transition-all"
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -31,7 +68,7 @@ export default function Dashboard() {
               <span className="text-emerald-500">+50 XP</span>
             </div>
             <div className="p-3 bg-slate-800 rounded-lg border border-slate-700 flex justify-between">
-              <span>Database Mock CAT</span>
+              <span>Database CAT</span>
               <span className="text-emerald-500">+100 XP</span>
             </div>
           </div>
