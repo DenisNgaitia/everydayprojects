@@ -15,7 +15,8 @@ export default function XPBadge({ xp, badges = [] }) {
                 {badges.map((badge, i) => (
                     <span
                         key={i}
-                        className="bg-neon-purple/15 text-neon-purple px-2 py-0.5 rounded-full text-[10px] font-semibold border border-neon-purple/20"
+                        className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                        style={{ background: 'var(--panel)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
                         title={badge}
                     >
                         🏆 {badge}
@@ -24,17 +25,17 @@ export default function XPBadge({ xp, badges = [] }) {
             </div>
 
             {/* XP Counter */}
-            <div className="flex items-center gap-2 glass px-3 py-1.5 rounded-full">
+            <div className="flex items-center gap-2 panel px-3 py-1.5 rounded-full">
                 <span className="text-sm">⚡</span>
                 <div className="flex flex-col leading-tight">
-                    <span className="text-xs font-bold text-neon-yellow">{xp} XP</span>
-                    <span className="text-[9px] text-gray-500">Lv.{level}</span>
+                    <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{xp} XP</span>
+                    <span style={{ fontSize: '9px', color: 'var(--text-secondary)' }}>Lv.{level}</span>
                 </div>
                 {/* Mini progress to next level */}
-                <div className="w-8 h-1.5 bg-surface-800 rounded-full overflow-hidden">
+                <div className="w-8 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
                     <div
-                        className="h-full bg-neon-yellow rounded-full transition-all duration-500"
-                        style={{ width: `${xpInLevel}%` }}
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${xpInLevel}%`, background: 'var(--accent-purple)' }}
                     />
                 </div>
             </div>
