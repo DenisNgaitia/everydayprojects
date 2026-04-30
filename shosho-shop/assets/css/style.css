@@ -1,0 +1,12 @@
+/* Minimal extra styling; most handled by Bootstrap */
+body {
+    background-color: #f8f9fa;
+}
+
+.nav-bottom .nav-link {
+    color: #333;
+}
+
+.nav-bottom .nav-link.active {
+    color: #007bff;
+}

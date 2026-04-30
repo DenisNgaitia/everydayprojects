@@ -1,0 +1,3 @@
+RewriteEngine On
+# Redirect all API requests to appropriate PHP files
+RewriteRule ^api/(.*)$ api/$1.php [L,QSA]
