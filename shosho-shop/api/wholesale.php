@@ -7,15 +7,21 @@ if (!isset($_SESSION['user_id'])) { http_response_code(401); die('{"error":"Unau
 $data = json_decode(file_get_contents('php://input'), true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $total = $data['total_amount'];
+    $paid = $data['amount_paid'] ?? 0;
+    $status = 'pending';
+    if ($paid >= $total) $status = 'paid';
+    elseif ($paid > 0) $status = 'partial';
+
     $pdo->beginTransaction();
     try {
         $stmt = $pdo->prepare("INSERT INTO wholesale_sales (sale_uuid, buyer_name, total_amount, amount_paid, payment_status, status, sold_by)
             VALUES (UUID(), ?, ?, ?, ?, 'synced', ?)");
         $stmt->execute([
             $data['buyer_name'],
-            $data['total_amount'],
-            $data['amount_paid'],
-            $data['payment_status'],
+            $total,
+            $paid,
+            $status,
             $_SESSION['user_id']
         ]);
         $saleId = $pdo->lastInsertId();

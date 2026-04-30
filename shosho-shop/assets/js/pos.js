@@ -3,36 +3,99 @@ const POS = {
     cart: [],
     render() {
         return `
-            <div class="row">
-                <div class="col-12"><input type="text" id="searchProduct" class="form-control mb-2" placeholder="Search product..."></div>
-                <div id="productGrid" class="row g-2 col-12 col-md-8" style="max-height:60vh; overflow-y:auto;"></div>
-                <div id="cartPanel" class="col-12 col-md-4 border-start bg-light p-2">
-                    <h6>Cart</h6>
-                    <div id="cartItems"></div>
-                    <hr>
-                    <strong>Total: <span id="cartTotal">0</span> TZS</strong>
-                    <button id="checkoutBtn" class="btn btn-success w-100 mt-2">Checkout</button>
+            <div class="row g-4">
+                <div class="col-12 col-lg-8">
+                    <div class="glass-card p-3 mb-4 animate-up">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0"><i class="fa fa-search text-muted"></i></span>
+                            <input type="text" id="searchProduct" class="form-control border-0 bg-transparent ps-0" placeholder="Search product by name, category or SKU...">
+                        </div>
+                    </div>
+                    <div id="productGrid" class="row g-3 product-grid-container">
+                        <!-- Products injected here -->
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="cart-panel glass-card p-4 sticky-top animate-up" style="top: 20px; animation-delay: 0.1s">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0">Order Summary</h5>
+                            <button class="btn btn-sm btn-light-danger" onclick="POS.clearCart()">Clear</button>
+                        </div>
+                        <div id="cartItems" class="mb-4" style="min-height: 200px; max-height: 400px; overflow-y: auto;">
+                            <!-- Items -->
+                        </div>
+                        <div class="border-top pt-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Subtotal</span>
+                                <span class="fw-bold" id="cartSubtotal">0 TZS</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-4">
+                                <h4 class="fw-extrabold mb-0">Total</h4>
+                                <h4 class="fw-extrabold mb-0 text-primary" id="cartTotal">0 TZS</h4>
+                            </div>
+                            <button id="checkoutBtn" class="btn btn-primary w-100 py-3 shadow-lg rounded-3">
+                                <i class="fa fa-cash-register me-2"></i> Complete Sale
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!-- Payment Modal -->
-            <div class="modal fade" id="paymentModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header"><h5 class="modal-title">Payment</h5></div>
-                        <div class="modal-body">
-                            <p>Total: <span id="modalTotal"></span></p>
-                            <select id="paymentMethod" class="form-select mb-2">
-                                <option value="cash">Cash</option>
-                                <option value="mobile_money">Mobile Money</option>
-                            </select>
-                            <div id="cashInput">
-                                <input type="number" id="cashReceived" class="form-control" placeholder="Amount received" step="0.01">
-                                <p>Change: <span id="changeAmt">0</span></p>
+
+            <!-- Receipt Modal -->
+            <div class="modal fade" id="receiptModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content glass-card border-0">
+                        <div class="modal-body p-4 text-center">
+                            <div id="receiptContent">
+                                <!-- Receipt paper -->
+                            </div>
+                            <div class="d-flex gap-2 mt-4 no-print">
+                                <button class="btn btn-outline-secondary flex-grow-1" data-bs-dismiss="modal">Close</button>
+                                <button class="btn btn-primary flex-grow-1" onclick="window.print()">
+                                    <i class="fa fa-print me-2"></i> Print Receipt
+                                </button>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button id="confirmSaleBtn" class="btn btn-primary">Confirm</button>
+                    </div>
+                </div>
+            </div>
+            
+            <style media="print">
+                .no-print { display: none !important; }
+                body * { visibility: hidden; }
+                #receiptContent, #receiptContent * { visibility: visible; }
+                #receiptContent { position: absolute; left: 0; top: 0; width: 100%; }
+            </style>
+
+            <!-- Payment Modal (Hidden but reused) -->
+            <div class="modal fade" id="paymentModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content glass-card border-0">
+                        <div class="modal-header border-0 pb-0">
+                            <h5 class="modal-title fw-bold">Select Payment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div class="text-center mb-4">
+                                <h2 class="fw-extrabold text-primary mb-1" id="modalTotal">0 TZS</h2>
+                                <p class="text-muted small">Total amount due</p>
+                            </div>
+                            <div class="d-flex gap-2 mb-4">
+                                <input type="radio" class="btn-check" name="payment_method" id="pay_cash" value="cash" checked>
+                                <label class="btn btn-outline-primary flex-grow-1 py-3" for="pay_cash">Cash</label>
+                                <input type="radio" class="btn-check" name="payment_method" id="pay_mobile" value="mobile_money">
+                                <label class="btn btn-outline-primary flex-grow-1 py-3" for="pay_mobile">Mobile</label>
+                            </div>
+                            <div id="cashInputGroup">
+                                <input type="number" id="cashReceived" class="form-control form-control-lg mb-3" placeholder="Amount received">
+                                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">Change:</span>
+                                    <h5 class="mb-0 fw-bold text-success" id="changeAmt">0 TZS</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 pt-0 p-4">
+                            <button id="confirmSaleBtn" class="btn btn-primary w-100 py-3 shadow">Confirm Sale</button>
                         </div>
                     </div>
                 </div>
@@ -45,102 +108,172 @@ const POS = {
         this.cart = [];
         this.updateCartDisplay();
         this.displayProducts();
+
         document.getElementById('searchProduct').addEventListener('input', (e) => this.displayProducts(e.target.value));
-        document.getElementById('checkoutBtn').addEventListener('click', () => {
-            if (this.cart.length === 0) return alert('Cart is empty');
-            this.openPayment();
-        });
-        document.getElementById('paymentMethod').addEventListener('change', (e) => {
-            document.getElementById('cashInput').style.display = e.target.value === 'cash' ? 'block' : 'none';
-        });
+        document.getElementById('checkoutBtn').onclick = () => this.openPayment();
+        document.getElementById('confirmSaleBtn').onclick = () => this.confirmSale();
+        
         document.getElementById('cashReceived').addEventListener('input', (e) => {
-            const change = parseFloat(e.target.value) - this.cartTotal;
-            document.getElementById('changeAmt').textContent = change >= 0 ? change.toFixed(2) : '0';
+            const received = parseFloat(e.target.value) || 0;
+            const change = received - this.cartTotal;
+            document.getElementById('changeAmt').textContent = fmtCurrency(Math.max(0, change));
         });
-        document.getElementById('confirmSaleBtn').addEventListener('click', () => this.confirmSale());
     },
     displayProducts(filter = '') {
         const grid = document.getElementById('productGrid');
-        const filtered = this.products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+        const filtered = this.products.filter(p => 
+            p.name.toLowerCase().includes(filter.toLowerCase()) || 
+            (p.category && p.category.toLowerCase().includes(filter.toLowerCase()))
+        );
+
         grid.innerHTML = filtered.map(p => `
-            <div class="col-4 col-md-3 mb-2">
-                <div class="card product-card" data-id="${p.id}" style="cursor:pointer;">
-                    <img src="${p.image_path || 'assets/images/placeholder.png'}" class="card-img-top">
-                    <div class="card-body p-1 text-center">
-                        <small>${p.name}</small><br>
-                        <small class="fw-bold">${p.selling_price}</small>
+            <div class="col-6 col-sm-4 col-md-3">
+                <div class="pos-card animate-scale h-100" onclick="POS.addToCart(${p.id})">
+                    <img src="${p.image_path || 'assets/images/placeholder.png'}">
+                    <div class="p-2">
+                        <p class="small text-muted mb-0">${p.category || 'General'}</p>
+                        <h6 class="fw-bold text-truncate mb-1">${p.name}</h6>
+                        <span class="text-primary fw-bold">${fmtCurrency(p.selling_price)}</span>
                     </div>
                 </div>
             </div>
         `).join('');
-        document.querySelectorAll('.product-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const id = card.dataset.id;
-                const product = this.products.find(p => p.id == id);
-                this.addToCart(product);
-            });
-        });
     },
-    addToCart(product, qty = 1) {
-        const existing = this.cart.find(i => i.id === product.id);
+    addToCart(id) {
+        const product = this.products.find(p => p.id == id);
+        const existing = this.cart.find(i => i.id == id);
         if (existing) {
-            existing.quantity += qty;
+            existing.quantity += 1;
         } else {
-            this.cart.push({ ...product, quantity: qty });
+            this.cart.push({ ...product, quantity: 1 });
         }
         this.updateCartDisplay();
     },
     updateCartDisplay() {
         this.cartTotal = this.cart.reduce((sum, i) => sum + (i.selling_price * i.quantity), 0);
         document.getElementById('cartTotal').textContent = fmtCurrency(this.cartTotal);
+        document.getElementById('cartSubtotal').textContent = fmtCurrency(this.cartTotal);
+        
         const cartDiv = document.getElementById('cartItems');
+        if (this.cart.length === 0) {
+            cartDiv.innerHTML = '<div class="text-center py-5 text-muted opacity-50">Empty Cart</div>';
+            return;
+        }
+
         cartDiv.innerHTML = this.cart.map(i => `
-            <div class="d-flex justify-content-between cart-item">
-                <span>${i.name} x${i.quantity}</span>
-                <span>${fmtCurrency(i.selling_price * i.quantity)} 
-                    <i class="fa fa-times text-danger" style="cursor:pointer" data-remove="${i.id}"></i>
-                </span>
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom animate-up">
+                <div class="flex-grow-1">
+                    <h6 class="fw-bold mb-0 text-truncate" style="max-width: 140px;">${i.name}</h6>
+                    <div class="d-flex align-items-center mt-1">
+                        <button class="btn btn-xs btn-light rounded-circle" onclick="POS.changeQty(${i.id}, -1)">-</button>
+                        <span class="mx-3 small fw-bold">${i.quantity}</span>
+                        <button class="btn btn-xs btn-light rounded-circle" onclick="POS.changeQty(${i.id}, 1)">+</button>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="fw-bold small">${fmtCurrency(i.selling_price * i.quantity)}</div>
+                    <button class="btn btn-link text-danger p-0 mt-1" onclick="POS.removeItem(${i.id})"><i class="fa fa-trash-alt small"></i></button>
+                </div>
             </div>
         `).join('');
-        document.querySelectorAll('[data-remove]').forEach(btn => {
-            btn.onclick = () => {
-                this.cart = this.cart.filter(item => item.id != btn.dataset.remove);
-                this.updateCartDisplay();
-            };
-        });
+    },
+    changeQty(id, delta) {
+        const item = this.cart.find(i => i.id == id);
+        if (item) {
+            item.quantity = Math.max(1, item.quantity + delta);
+            this.updateCartDisplay();
+        }
+    },
+    removeItem(id) {
+        this.cart = this.cart.filter(i => i.id != id);
+        this.updateCartDisplay();
+    },
+    clearCart() {
+        if(confirm('Clear all items?')) {
+            this.cart = [];
+            this.updateCartDisplay();
+        }
     },
     openPayment() {
+        if(this.cart.length === 0) return showToast('Cart is empty', 'error');
         document.getElementById('modalTotal').textContent = fmtCurrency(this.cartTotal);
         new bootstrap.Modal(document.getElementById('paymentModal')).show();
     },
     async confirmSale() {
-        const method = document.getElementById('paymentMethod').value;
+        const method = document.querySelector('input[name="payment_method"]:checked').value;
         const cashReceived = method === 'cash' ? parseFloat(document.getElementById('cashReceived').value) || 0 : 0;
-        const change = cashReceived - this.cartTotal;
+        
+        if (method === 'cash' && cashReceived < this.cartTotal) return showToast('Insufficient cash', 'error');
+
         const saleData = {
             total_amount: this.cartTotal,
             payment_method: method,
             cash_received: cashReceived,
-            change_given: change > 0 ? change : 0,
-            items: this.cart.map(i => ({ product_id: i.id, unit_price: i.selling_price, quantity: i.quantity, total: i.selling_price * i.quantity }))
+            change_given: Math.max(0, cashReceived - this.cartTotal),
+            items: this.cart.map(i => ({ 
+                product_id: i.id, 
+                unit_price: i.selling_price, 
+                quantity: i.quantity, 
+                total: i.selling_price * i.quantity 
+            }))
         };
-        if (navigator.onLine) {
-            const res = await fetch('api/sales.php', { method: 'POST', body: JSON.stringify(saleData) });
+
+        try {
+            const res = await fetch('api/sales.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(saleData)
+            });
+
             if (res.ok) {
+                const data = await res.json();
+                this.showReceipt(data.sale_id, saleData);
                 this.cart = [];
                 this.updateCartDisplay();
                 bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
-                showToast('Sale completed');
-                this.init(); // refresh stock
-            } else {
-                alert('Error processing sale');
+                showToast('Sale Success!', 'success');
             }
-        } else {
-            await savePendingSale(saleData);
-            this.cart = [];
-            this.updateCartDisplay();
-            bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
-            showToast('Sale saved offline. Will sync when online.');
-        }
+        } catch (e) { showToast('Network Error', 'error'); }
+    },
+    showReceipt(id, sale) {
+        const content = document.getElementById('receiptContent');
+        content.innerHTML = `
+            <div class="receipt-paper">
+                <h4 class="fw-bold mb-1 text-uppercase">Shosho Shop</h4>
+                <p class="small mb-2">P.O BOX 123, Nairobi<br>Tel: +254 700 000 000</p>
+                <div class="border-top border-bottom py-2 my-2 small">
+                    Receipt #: ${id}<br>
+                    Date: ${new Date().toLocaleString()}<br>
+                    Cashier: ${App.user.display_name}
+                </div>
+                <div class="text-start">
+                    ${this.cart.map(i => `
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>${i.name} x${i.quantity}</span>
+                            <span>${fmtCurrency(i.selling_price * i.quantity)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="border-top pt-2 mt-2">
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>TOTAL</span>
+                        <span>${fmtCurrency(sale.total_amount)}</span>
+                    </div>
+                    <div class="d-flex justify-content-between small">
+                        <span>Paid (${sale.payment_method})</span>
+                        <span>${fmtCurrency(sale.cash_received || sale.total_amount)}</span>
+                    </div>
+                    <div class="d-flex justify-content-between small">
+                        <span>Change</span>
+                        <span>${fmtCurrency(sale.change_given)}</span>
+                    </div>
+                </div>
+                <div class="mt-4 small italic">
+                    ~ Thank you for shopping with us! ~<br>
+                    Built with ❤️ by Shosho
+                </div>
+            </div>
+        `;
+        new bootstrap.Modal(document.getElementById('receiptModal')).show();
     }
 };

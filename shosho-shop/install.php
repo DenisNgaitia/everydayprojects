@@ -83,6 +83,19 @@ $queries = [
         sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (sold_by) REFERENCES users(id) ON DELETE SET NULL
     )",
+    "CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(50) NOT NULL UNIQUE,
+        description VARCHAR(255)
+    )",
+    "CREATE TABLE IF NOT EXISTS expenses (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        category VARCHAR(50) NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        description VARCHAR(255),
+        expense_date DATE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )",
     "CREATE TABLE IF NOT EXISTS wholesale_sale_items (
         id INT AUTO_INCREMENT PRIMARY KEY,
         wholesale_sale_id INT NOT NULL,

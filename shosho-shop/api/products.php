@@ -49,7 +49,6 @@ if ($method === 'POST') {
 }
 
 if ($method === 'PUT') {
-    parse_str(file_get_contents('php://input'), $putData);
     $id = $_GET['id'] ?? null;
     if (!$id) { http_response_code(400); die('{"error":"Missing ID"}'); }
     $data = json_decode(file_get_contents('php://input'), true);

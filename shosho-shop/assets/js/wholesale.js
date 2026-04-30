@@ -3,24 +3,47 @@ const Wholesale = {
     cart: [],
     render() {
         return `
-            <h5>Wholesale (Mololine)</h5>
-            <div class="mb-2"><input id="buyerName" class="form-control" placeholder="Buyer Name"></div>
-            <div class="row">
-                <div class="col-12 col-md-8" id="wholesaleProductGrid"></div>
-                <div class="col-12 col-md-4 border-start p-2">
-                    <h6>Cart</h6>
-                    <div id="wholesaleCartItems"></div>
-                    <hr>
-                    <strong>Total: <span id="wholesaleTotal">0</span> TZS</strong>
-                    <div class="mt-2">
-                        <input id="amountPaid" class="form-control mb-1" placeholder="Amount Paid" type="number" step="0.01">
-                        <select id="paymentStatus" class="form-select mb-2">
-                            <option value="paid">Paid</option>
-                            <option value="partial">Partial</option>
-                            <option value="pending">Pending</option>
-                        </select>
+            <div class="row g-4">
+                <div class="col-12 col-lg-8">
+                    <div class="glass-card p-4 mb-4">
+                        <h5 class="fw-bold mb-3"><i class="fa fa-truck me-2 text-primary"></i> Bulk Sales</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Buyer Name / Business</label>
+                                <input type="text" id="buyerName" class="form-control" placeholder="e.g. Mama Mboga Shop">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Search Items</label>
+                                <input type="text" id="searchWholesale" class="form-control" placeholder="Search bulk items...">
+                            </div>
+                        </div>
                     </div>
-                    <button id="confirmWholesaleBtn" class="btn btn-success w-100">Complete Sale</button>
+                    <div id="wholesaleGrid" class="row g-3" style="max-height: 500px; overflow-y: auto;">
+                        <!-- Bulk items -->
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="cart-panel glass-card">
+                        <h5 class="fw-bold mb-3">Order Summary</h5>
+                        <div id="wholesaleCart" style="min-height: 200px;">
+                            <div class="text-center py-5 text-muted" id="emptyWholesaleMsg">
+                                <p>No items selected for bulk sale</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-top">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Total Bulk Price</span>
+                                <h4 class="fw-bold text-primary mb-0" id="wholesaleTotal">0 TZS</h4>
+                            </div>
+                            <div class="mb-4 mt-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Initial Deposit (Optional)</label>
+                                <input type="number" id="amountPaid" class="form-control" placeholder="0.00">
+                            </div>
+                            <button id="processWholesaleBtn" class="btn btn-primary w-100 py-3 shadow">
+                                <i class="fa fa-file-invoice me-2"></i> Process Bulk Sale
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -29,60 +52,125 @@ const Wholesale = {
         const res = await fetch('api/products.php');
         this.products = await res.json();
         this.cart = [];
-        this.displayProducts();
-        document.getElementById('confirmWholesaleBtn').onclick = () => this.confirmSale();
+        this.updateCart();
+        this.displayItems();
+
+        document.getElementById('searchWholesale').addEventListener('input', (e) => this.displayItems(e.target.value));
+        document.getElementById('processWholesaleBtn').onclick = () => this.processSale();
     },
-    displayProducts() {
-        const grid = document.getElementById('wholesaleProductGrid');
-        grid.innerHTML = `<div class="row g-2">` + this.products.map(p => `
-            <div class="col-4 col-md-3 mb-2">
-                <div class="card wholesale-product" data-id="${p.id}" style="cursor:pointer;">
-                    <img src="${p.image_path || 'assets/images/placeholder.png'}" class="card-img-top">
-                    <div class="card-body p-1 text-center"><small>${p.name}</small><br><small>${p.selling_price}</small></div>
+    displayItems(filter = '') {
+        const grid = document.getElementById('wholesaleGrid');
+        const filtered = this.products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+        
+        grid.innerHTML = filtered.map(p => `
+            <div class="col-md-6">
+                <div class="glass-card p-3 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-3 p-1 me-3" style="width: 50px; height: 50px;">
+                            <img src="${p.image_path || 'assets/images/placeholder.png'}" style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">${p.name}</h6>
+                            <span class="small text-primary">${fmtCurrency(p.selling_price)}/unit</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="Wholesale.addToCart(${p.id})">
+                        <i class="fa fa-plus"></i>
+                    </button>
                 </div>
             </div>
-        `).join('') + `</div>`;
-        document.querySelectorAll('.wholesale-product').forEach(card => {
-            card.onclick = () => {
-                const id = card.dataset.id;
-                const prod = this.products.find(p => p.id == id);
-                this.addToCart(prod);
-            };
-        });
+        `).join('');
     },
-    addToCart(prod) {
-        const existing = this.cart.find(i => i.id === prod.id);
-        if (existing) existing.quantity++; else this.cart.push({ ...prod, quantity: 1 });
+    addToCart(id) {
+        const product = this.products.find(p => p.id == id);
+        const existing = this.cart.find(i => i.id == id);
+        if (existing) {
+            existing.quantity += 10; // Default bulk increment
+        } else {
+            this.cart.push({ ...product, quantity: 10 });
+        }
+        showToast(`Added 10 units of ${product.name}`, 'info');
         this.updateCart();
     },
     updateCart() {
-        const total = this.cart.reduce((s, i) => s + i.selling_price * i.quantity, 0);
-        document.getElementById('wholesaleTotal').textContent = fmtCurrency(total);
-        document.getElementById('wholesaleCartItems').innerHTML = this.cart.map(i => `
-            <div class="d-flex justify-content-between">${i.name} x${i.quantity} ${fmtCurrency(i.selling_price * i.quantity)} <i class="fa fa-times text-danger remove-wholesale-item" data-id="${i.id}"></i></div>
+        const cartDiv = document.getElementById('wholesaleCart');
+        const totalSpan = document.getElementById('wholesaleTotal');
+        
+        if (this.cart.length === 0) {
+            cartDiv.innerHTML = '<div class="text-center py-5 text-muted">No items selected</div>';
+            totalSpan.textContent = '0 TZS';
+            return;
+        }
+
+        const total = this.cart.reduce((sum, i) => sum + (i.selling_price * i.quantity), 0);
+        totalSpan.textContent = fmtCurrency(total);
+
+        cartDiv.innerHTML = this.cart.map(i => `
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                <div class="flex-grow-1">
+                    <div class="fw-bold small">${i.name}</div>
+                    <div class="d-flex align-items-center mt-1">
+                        <button class="btn btn-xs btn-light px-2" onclick="Wholesale.changeQty(${i.id}, -1)">-</button>
+                        <span class="mx-2 small fw-bold">${i.quantity} units</span>
+                        <button class="btn btn-xs btn-light px-2" onclick="Wholesale.changeQty(${i.id}, 1)">+</button>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="fw-bold small">${fmtCurrency(i.selling_price * i.quantity)}</div>
+                    <button class="btn btn-link btn-sm text-danger p-0" onclick="Wholesale.removeItem(${i.id})"><i class="fa fa-times"></i></button>
+                </div>
+            </div>
         `).join('');
-        document.querySelectorAll('.remove-wholesale-item').forEach(btn => btn.onclick = () => {
-            this.cart = this.cart.filter(i => i.id != btn.dataset.id); this.updateCart();
-        });
     },
-    async confirmSale() {
+    changeQty(id, delta) {
+        const item = this.cart.find(i => i.id == id);
+        if (item) {
+            item.quantity = Math.max(1, item.quantity + delta);
+            this.updateCart();
+        }
+    },
+    removeItem(id) {
+        this.cart = this.cart.filter(i => i.id != id);
+        this.updateCart();
+    },
+    async processSale() {
         const buyer = document.getElementById('buyerName').value;
-        if (!buyer) return alert('Enter buyer name');
-        const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
-        const paymentStatus = document.getElementById('paymentStatus').value;
-        const totalAmount = this.cart.reduce((s, i) => s + i.selling_price * i.quantity, 0);
+        const deposit = parseFloat(document.getElementById('amountPaid').value) || 0;
+        const total = this.cart.reduce((sum, i) => sum + (i.selling_price * i.quantity), 0);
+
+        if (!buyer) return showToast('Please enter buyer name', 'error');
+        if (this.cart.length === 0) return showToast('No items in cart', 'error');
+
         const saleData = {
             buyer_name: buyer,
-            total_amount: totalAmount,
-            amount_paid: amountPaid,
-            payment_status: paymentStatus,
-            items: this.cart.map(i => ({ product_id: i.id, unit_price: i.selling_price, quantity: i.quantity, total: i.selling_price * i.quantity }))
+            total_amount: total,
+            amount_paid: deposit,
+            items: this.cart.map(i => ({ 
+                product_id: i.id, 
+                unit_price: i.selling_price, 
+                quantity: i.quantity, 
+                total: i.selling_price * i.quantity 
+            }))
         };
-        const res = await fetch('api/wholesale.php', { method: 'POST', body: JSON.stringify(saleData) });
-        if (res.ok) {
-            this.cart = []; this.updateCart(); this.init(); showToast('Wholesale sale recorded');
-        } else {
-            alert('Error');
+
+        try {
+            const res = await fetch('api/wholesale.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(saleData)
+            });
+
+            if (res.ok) {
+                showToast('Bulk sale processed successfully!', 'success');
+                this.cart = [];
+                document.getElementById('buyerName').value = '';
+                document.getElementById('amountPaid').value = '';
+                this.updateCart();
+            } else {
+                showToast('Failed to process bulk sale', 'error');
+            }
+        } catch (e) {
+            showToast('Error connecting to server', 'error');
         }
     }
 };

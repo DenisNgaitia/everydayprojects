@@ -11,34 +11,33 @@ const App = {
         });
     },
     async checkAuth() {
-        const res = await fetch('api/auth.php?action=me');
-        const data = await res.json();
-        if (data.id) {
-            this.user = data;
-        }
-    },
-    showLogin() {
-        document.getElementById('app').innerHTML = Auth.render();
-        Auth.init();
+        try {
+            const res = await fetch('api/auth.php?action=me');
+            const data = await res.json();
+            if (data.id) {
+                this.user = data;
+            }
+        } catch (e) { console.error("Auth check failed", e); }
     },
     loadMainLayout() {
         document.getElementById('app').innerHTML = `
-            <div id="main-content" class="container-fluid pb-5"></div>
-            <nav class="nav-bottom navbar navbar-expand navbar-light bg-light">
-                <ul class="navbar-nav d-flex flex-row justify-content-around w-100">
-                    <li class="nav-item"><a class="nav-link active" href="#" data-page="pos"><i class="fa fa-cash-register"></i> Sell</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-page="inventory"><i class="fa fa-boxes"></i> Stock</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-page="wholesale"><i class="fa fa-truck"></i> Wholesale</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-page="analytics"><i class="fa fa-chart-bar"></i> Reports</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="App.logout()"><i class="fa fa-sign-out-alt"></i></a></li>
-                </ul>
-            </nav>
+            <div class="app-shell pb-5 mb-5">
+                <main id="main-content" class="container-fluid pt-4 animate-fade"></main>
+                
+                <nav class="app-nav">
+                    <a class="nav-item active" href="#" data-page="dashboard"><i class="fa fa-th-large"></i><span>Home</span></a>
+                    <a class="nav-item" href="#" data-page="pos"><i class="fa fa-cash-register"></i><span>Sell</span></a>
+                    <a class="nav-item" href="#" data-page="inventory"><i class="fa fa-boxes"></i><span>Stock</span></a>
+                    <a class="nav-item" href="#" data-page="analytics"><i class="fa fa-chart-bar"></i><span>Stats</span></a>
+                    <a class="nav-item text-danger" href="#" onclick="App.logout()"><i class="fa fa-power-off"></i><span>Exit</span></a>
+                </nav>
+            </div>
         `;
         this.bindNav();
-        this.navigate('pos');
+        this.navigate('dashboard');
     },
     bindNav() {
-        document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+        document.querySelectorAll('.nav-item[data-page]').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const page = e.target.closest('a').dataset.page;
@@ -48,12 +47,20 @@ const App = {
         });
     },
     setActiveNav(page) {
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        document.querySelector(`.nav-link[data-page="${page}"]`)?.classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(l => l.classList.remove('active'));
+        document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
     },
     navigate(page) {
         const container = document.getElementById('main-content');
+        container.classList.remove('animate-fade');
+        void container.offsetWidth; // trigger reflow
+        container.classList.add('animate-fade');
+
         switch (page) {
+            case 'dashboard':
+                container.innerHTML = Dashboard.render();
+                Dashboard.init();
+                break;
             case 'pos':
                 container.innerHTML = POS.render();
                 POS.init();
@@ -66,6 +73,10 @@ const App = {
                 container.innerHTML = Wholesale.render();
                 Wholesale.init();
                 break;
+            case 'expenses':
+                container.innerHTML = Expenses.render();
+                Expenses.init();
+                break;
             case 'analytics':
                 container.innerHTML = Analytics.render();
                 Analytics.init();
@@ -73,10 +84,12 @@ const App = {
         }
     },
     logout() {
-        fetch('api/auth.php?action=logout').then(() => {
-            this.user = null;
-            location.reload();
-        });
+        if(confirm('Are you sure you want to logout?')) {
+            fetch('api/auth.php?action=logout').then(() => {
+                this.user = null;
+                location.reload();
+            });
+        }
     }
 };
 

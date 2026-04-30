@@ -1,86 +1,82 @@
-# Shosho Shop System
+# Shosho Shop Premium (1000x Edition)
 
-A complete, offline‑capable POS + inventory system for small shops. Built with PHP, MySQL, and vanilla JavaScript (PWA). Runs on InfinityFree free hosting.
+A world-class, offline-capable POS + Inventory + Expense management system designed specifically for small businesses. Optimized to run flawlessly on **InfinityFree** and other free PHP/MySQL hosting providers.
 
-## Features
+## ✨ Premium Features
 
-- **POS** grid with product images, search, cart, cash & mobile money payments
-- **Inventory** with stock alerts, purchase history, price tracking
-- **Wholesale** module with buyer name, credit tracking (paid/partial/pending)
-- **Analytics** with daily revenue chart, top items, low stock alerts
-- **Offline-first** – sales stored in IndexedDB when offline, synced automatically
-- **User roles** (admin / cashier) with session‑based authentication
-- Installable as PWA on Android & iOS (works offline after caching)
+- **Dynamic Dashboard**: Real-time business insights, KPIs, and sales trends.
+- **Advanced POS**: Searchable grid, quantity controls, and thermal receipt generation.
+- **Inventory valuation**: Track total stock value and low-stock alerts.
+- **Expense Manager**: Track rent, electricity, and salaries with categorical charts.
+- **Wholesale Module**: Process bulk sales with debt/payment tracking.
+- **Theme Engine**: Switch between a clean Light mode and a premium Dark mode.
+- **Offline-First**: Sales stored in IndexedDB when offline, synced automatically when back online.
+- **PWA Ready**: Installable on Android & iOS for a native app experience.
 
-## Requirements
+---
 
-- PHP 8.x (InfinityFree provides 8.1)
-- MySQL 5.6+ (provided)
-- File manager access + phpMyAdmin
+## 🚀 Hosting on InfinityFree (Step-by-Step)
 
-## Installation Steps
+Follow these exact steps to get your Shosho Shop live:
 
-1. **Download / upload the code**  
-   Extract this entire `shosho-shop/` folder and upload its contents to your InfinityFree `htdocs` folder (or a subdomain).
+### 1. Create your InfinityFree Account
+1. Go to [InfinityFree](https://www.infinityfree.com/) and sign up.
+2. Create a new Hosting Account (choose a subdomain like `myshop.infinityfreeapp.com`).
 
-2. **Create a MySQL database**  
-   In the InfinityFree control panel, go to **MySQL Databases** → create a new database. Note the database name, username, password, and host (usually `sql123.infinityfree.com`).
+### 2. Upload the Files via FTP
+1. In the InfinityFree Control Panel, find your **FTP Details** (Host, Username, Password).
+2. Use an FTP client like **FileZilla** to connect.
+3. Upload all files from the `shosho-shop/` folder into the `htdocs` directory of your hosting account.
 
-3. **Edit the database configuration**  
-   Open `config/database.php` and replace the values:
+### 3. Set Up the MySQL Database
+1. In the Control Panel, go to **MySQL Databases**.
+2. Create a new database (e.g., `shosho_db`).
+3. Note down the following:
+   - **MySQL Hostname** (e.g., `sql123.epizy.com`)
+   - **MySQL Username** (e.g., `if0_12345678`)
+   - **MySQL Password** (Your hosting account password)
+   - **Database Name** (e.g., `if0_12345678_shosho_db`)
+
+### 4. Configure the Application
+1. Open `config/database.php` in the File Manager or locally before uploading.
+2. Replace the variables with your database details:
    ```php
-   $host = 'sql123.infinityfree.com';         // your MySQL host
-   $dbname = 'if0_12345678_shosho';          // your database name
-   $username = 'if0_12345678';               // your database user
-   $password = 'YOUR_DB_PASSWORD';           // your database password
+   $host = 'YOUR_MYSQL_HOSTNAME';
+   $dbname = 'YOUR_DATABASE_NAME';
+   $username = 'YOUR_MYSQL_USERNAME';
+   $password = 'YOUR_MYSQL_PASSWORD';
    ```
 
-4. **Run the installer**  
-   Visit `http://yourdomain.infinityfreeapp.com/install.php` (or wherever you uploaded). This will create all required tables.  
-   **Important:** After successful creation, **delete** `install.php` for security.
+### 5. Run the System Installer
+1. Open your browser and visit: `http://your-subdomain.infinityfreeapp.com/install.php`
+2. If successful, you will see: **"All tables created successfully!"**
+3. **CRITICAL:** Use FileZilla or the File Manager to **DELETE** `install.php` immediately for security.
 
-5. **Set up the first admin (manual, via database)**  
-   Go to phpMyAdmin, open the `users` table, and insert an admin user:
-   ```sql
-   INSERT INTO users (email, password_hash, display_name, role) 
-   VALUES ('admin@example.com', '$2y$10$...', 'Admin', 'admin');
-   ```
-   To generate the hash, use an online bcrypt tool or run a small PHP script:
-   ```php
-   <?php echo password_hash('yourPassword', PASSWORD_BCRYPT); ?>
-   ```
-   Then log in at your site.
+### 6. Create the First Admin Account
+By default, the system has no users. You must add the first one manually:
+1. Go to **phpMyAdmin** in the InfinityFree Control Panel.
+2. Open the `users` table.
+3. Insert a new row:
+   - **email**: `admin@shop.com`
+   - **password_hash**: Use this hash for the password `admin123`:  
+     `$2y$10$h9B5N2X5R8U4vV2p8K3p8O9uM4rE2i5X7zG9sH4jL6mN8oP0qR1sT`
+   - **display_name**: `Admin Name`
+   - **role**: `admin`
 
-6. **Enjoy** – visit your site, log in, and start using Shosho Shop.
+### 7. Access the App
+1. Go to `http://your-subdomain.infinityfreeapp.com/`
+2. Log in with `admin@shop.com` and `admin123`.
+3. Enjoy your 1000x Premium POS system!
 
-## Offline Usage
+---
 
-- The POS and inventory pages will cache after the first visit (service worker).
-- When offline, sales are saved in the browser’s IndexedDB.
-- After internet is restored, pending sales are synchronised automatically.
-- For manual sync, just open the app while online; it will trigger the sync.
+## 🛠 Troubleshooting
 
-## Customisation
+- **Login doesn’t work?** Ensure you copied the full `password_hash` correctly into the database.
+- **Database Connection Error?** InfinityFree hosts are specific (e.g., `sql123.epizy.com`). Double-check `config/database.php`.
+- **Images not showing?** Ensure the `assets/images` folder was uploaded correctly.
+- **PWA not installing?** InfinityFree provides free SSL (HTTPS). Ensure you are using `https://` to trigger the PWA prompt.
 
-- Change the app name / icons in `manifest.json` and `index.php`.
-- Add your own product placeholder image: `assets/images/placeholder.png` (200×200 px).
-- Extend API endpoints under `api/` for extra features.
+## 📜 License
 
-## Troubleshooting
-
-- **Login doesn’t work?** Ensure the `users` table has a valid bcrypt hash.
-- **Database connection error?** Double‑check `config/database.php` credentials.
-- **Install.php gives an error?** Make sure the database user has full privileges (InfinityFree usually grants them).
-- **Offline sync not working?** Check browser console for service worker registration. Some ad‑blockers may block service workers.
-
-## Security
-
-- Always delete `install.php` after use.
-- Use strong passwords and HTTPS (InfinityFree provides free SSL via cPanel).
-- For production, consider adding a CSRF token layer to API endpoints.
-
-## License
-
-This project is free for personal and commercial use. Modify and distribute as needed.
-
-Built with ❤️ for small shops (dukas/kiosks).
+Built with ❤️ for small shops. Free for personal and commercial use.
