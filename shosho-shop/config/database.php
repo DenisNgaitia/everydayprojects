@@ -1,9 +1,9 @@
 <?php
 // Edit these values with your InfinityFree database details
-$host = 'sql123.infinityfree.com';
-$dbname = 'if0_12345678_shosho';
-$username = 'if0_12345678';
-$password = 'YOUR_DB_PASSWORD';
+$host = '127.0.0.1';
+$dbname = 'shosho_shop';
+$username = 'shosho_user';
+$password = 'shosho123';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
@@ -13,5 +13,5 @@ try {
     ]);
 } catch (PDOException $e) {
     http_response_code(500);
-    die(json_encode(['error' => 'Database connection failed']));
+    die(json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]));
 }
