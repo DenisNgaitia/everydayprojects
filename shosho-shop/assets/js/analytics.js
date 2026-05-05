@@ -73,6 +73,10 @@ const Analytics = {
         gradient.addColorStop(0, 'rgba(79, 70, 229, 0.2)');
         gradient.addColorStop(1, 'rgba(79, 70, 229, 0)');
 
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const tickColor = isDark ? '#94a3b8' : '#64748b';
+        const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -101,10 +105,13 @@ const Analytics = {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.05)' },
-                        ticks: { callback: value => fmtCurrency(value) }
+                        grid: { color: gridColor },
+                        ticks: { color: tickColor, callback: value => fmtCurrency(value) }
                     },
-                    x: { grid: { display: false } }
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: tickColor }
+                    }
                 }
             }
         });
