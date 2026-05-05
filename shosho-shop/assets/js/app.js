@@ -51,6 +51,12 @@ const App = {
         document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
     },
     navigate(page) {
+        // Clean up any modals moved to body and their backdrops
+        document.querySelectorAll('body > .modal').forEach(el => el.remove());
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style = '';
+
         const container = document.getElementById('main-content');
         container.classList.remove('animate-fade');
         void container.offsetWidth; // trigger reflow
@@ -87,7 +93,9 @@ const App = {
         if(confirm('Are you sure you want to logout?')) {
             fetch('api/auth.php?action=logout').then(() => {
                 this.user = null;
-                location.reload();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.php';
             });
         }
     }

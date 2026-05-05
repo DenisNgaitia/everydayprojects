@@ -7,7 +7,7 @@ const Inventory = {
                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 animate-up">
                     <div>
                         <h2 class="fw-bold mb-1">Inventory Management</h2>
-                        <p class="text-muted mb-0">Total Stock Value: <span id="totalStockValue" class="fw-bold text-primary">0 TZS</span></p>
+                        <p class="text-muted mb-0">Total Stock Value: <span id="totalStockValue" class="fw-bold text-primary">0 KSh</span></p>
                     </div>
                     <div class="d-flex gap-2">
                         <button class="btn btn-outline-primary" id="manageCatsBtn">
@@ -70,11 +70,13 @@ const Inventory = {
         `;
     },
     async init() {
+        document.body.appendChild(document.getElementById('productModal'));
+        document.body.appendChild(document.getElementById('catModal'));
         await this.loadData();
         document.getElementById('addProductBtn').onclick = () => this.editProduct(null);
         document.getElementById('manageCatsBtn').onclick = () => {
             this.renderCatList();
-            new bootstrap.Modal(document.getElementById('catModal')).show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('catModal')).show();
         };
         document.getElementById('inventorySearch').oninput = (e) => this.renderTable(e.target.value);
     },
@@ -137,7 +139,9 @@ const Inventory = {
         }).join('');
     },
     editProduct(product = null) {
-        const modal = new bootstrap.Modal(document.getElementById('productModal'));
+        const modalEl = document.getElementById('productModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
         const formHTML = `
             <div class="modal-header border-0 p-4 pb-0">
                 <h5 class="fw-bold mb-0">${product ? 'Update Item' : 'New Inventory Item'}</h5>
@@ -151,10 +155,22 @@ const Inventory = {
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted text-uppercase">Category</label>
-                        <select id="prodCategory" class="form-select">
-                            <option value="">General</option>
-                            ${this.categories.map(c => `<option value="${c.name}" ${product?.category === c.name ? 'selected' : ''}>${c.name}</option>`).join('')}
+                        <input id="prodCategory" class="form-control" list="categoryOptions" value="${product?.category || ''}" placeholder="Select or type new...">
+                        <datalist id="categoryOptions">
+                            <option value="General">
+                            ${this.categories.map(c => `<option value="${c.name}">`).join('')}
+                        </datalist>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Variant Of (Optional)</label>
+                        <select id="prodParent" class="form-select">
+                            <option value="">-- None (Base Product) --</option>
+                            ${this.products.filter(p => !p.parent_id && p.name !== 'Small Bag' && p.name !== 'Medium Bag' && p.name !== 'Large Bag').map(p => `<option value="${p.id}" ${product?.parent_id == p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
                         </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Serial/SKU</label>
+                        <input id="prodSerial" class="form-control bg-light" value="${product?.serial_code || ''}" readonly placeholder="Auto-generated">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted text-uppercase">Cost Price</label>
@@ -164,17 +180,13 @@ const Inventory = {
                         <label class="form-label small fw-bold text-muted text-uppercase">Selling Price</label>
                         <input id="prodPrice" class="form-control" type="number" value="${product?.selling_price || ''}">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted text-uppercase">Initial Qty</label>
                         <input id="prodQty" class="form-control" type="number" value="${product?.quantity || '0'}">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted text-uppercase">Low Stock Alert</label>
                         <input id="prodThreshold" class="form-control" type="number" value="${product?.min_threshold || '10'}">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Serial/SKU</label>
-                        <input id="prodSerial" class="form-control" value="${product?.serial_code || ''}">
                     </div>
                     <div class="col-12 mt-4">
                         <button id="saveProdBtn" class="btn btn-primary w-100 py-3 rounded-3 shadow">
@@ -186,11 +198,27 @@ const Inventory = {
         `;
         document.getElementById('productFormContainer').innerHTML = formHTML;
         modal.show();
+
+        const updateSKU = () => {
+            if (product && product.serial_code) return; // Don't override existing
+            const cat = document.getElementById('prodCategory').value.substring(0, 3).toUpperCase() || 'GEN';
+            const name = document.getElementById('prodName').value.substring(0, 3).toUpperCase() || 'ITM';
+            const rnd = Math.floor(Math.random() * 900) + 100;
+            document.getElementById('prodSerial').value = `${cat}-${name}-${rnd}`;
+        };
+        document.getElementById('prodName').addEventListener('input', updateSKU);
+        document.getElementById('prodCategory').addEventListener('input', updateSKU);
         
         document.getElementById('saveProdBtn').onclick = async () => {
+            const catVal = document.getElementById('prodCategory').value;
+            if (catVal && !this.categories.find(c => c.name.toLowerCase() === catVal.toLowerCase())) {
+                await fetch('api/categories.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: catVal }) });
+            }
+
             const data = {
                 name: document.getElementById('prodName').value,
-                category: document.getElementById('prodCategory').value,
+                category: catVal,
+                parent_id: document.getElementById('prodParent').value || null,
                 cost_price: document.getElementById('prodCost').value,
                 selling_price: document.getElementById('prodPrice').value,
                 quantity: document.getElementById('prodQty').value,

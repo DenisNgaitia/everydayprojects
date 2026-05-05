@@ -16,8 +16,8 @@ if ($method === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     $pdo->beginTransaction();
     try {
-        $stmt = $pdo->prepare("INSERT INTO products (uuid, serial_code, name, category, subcategory, unit_type, pack_size, cost_price, selling_price, quantity, min_threshold, expiry_date, supplier)
-            VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO products (uuid, serial_code, name, category, subcategory, unit_type, pack_size, cost_price, selling_price, quantity, min_threshold, expiry_date, supplier, parent_id)
+            VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $data['serial_code'] ?? null,
             $data['name'],
@@ -30,7 +30,8 @@ if ($method === 'POST') {
             $data['quantity'] ?? 0,
             $data['min_threshold'] ?? 10,
             $data['expiry_date'] ?? null,
-            $data['supplier'] ?? ''
+            $data['supplier'] ?? '',
+            $data['parent_id'] ?? null
         ]);
         $productId = $pdo->lastInsertId();
         if ($data['quantity'] > 0) {
@@ -54,7 +55,7 @@ if ($method === 'PUT') {
     $data = json_decode(file_get_contents('php://input'), true);
     $fields = [];
     $params = [];
-    foreach (['name','category','subcategory','unit_type','pack_size','cost_price','selling_price','quantity','min_threshold','expiry_date','supplier'] as $col) {
+    foreach (['name','category','subcategory','unit_type','pack_size','cost_price','selling_price','quantity','min_threshold','expiry_date','supplier','parent_id'] as $col) {
         if (isset($data[$col])) {
             $fields[] = "$col = ?";
             $params[] = $data[$col];

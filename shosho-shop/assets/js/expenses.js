@@ -65,7 +65,7 @@ const Expenses = {
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-bold text-muted text-uppercase">Amount (TZS)</label>
+                                <label class="form-label small fw-bold text-muted text-uppercase">Amount (KSh)</label>
                                 <input type="number" id="expAmount" class="form-control" placeholder="0.00">
                             </div>
                             <div class="mb-3">
@@ -86,9 +86,10 @@ const Expenses = {
         `;
     },
     async init() {
+        document.body.appendChild(document.getElementById('expenseModal'));
         await this.loadExpenses();
         document.getElementById('addExpenseBtn').onclick = () => {
-            new bootstrap.Modal(document.getElementById('expenseModal')).show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('expenseModal')).show();
         };
         document.getElementById('saveExpenseBtn').onclick = () => this.saveExpense();
     },

@@ -16,14 +16,14 @@ const Dashboard = {
                     <div class="col-12 col-md-3">
                         <div class="kpi-card animate-scale" style="animation-delay: 0.1s">
                             <span class="small fw-bold text-muted text-uppercase">Today's Sales</span>
-                            <div class="kpi-value text-primary" id="dashSales">0 TZS</div>
+                            <div class="kpi-value text-primary" id="dashSales">0 KSh</div>
                             <div class="small text-success"><i class="fa fa-chart-line me-1"></i> +12% from yesterday</div>
                         </div>
                     </div>
                     <div class="col-12 col-md-3">
                         <div class="kpi-card animate-scale" style="animation-delay: 0.2s">
                             <span class="small fw-bold text-muted text-uppercase">Net Profit</span>
-                            <div class="kpi-value text-success" id="dashProfit">0 TZS</div>
+                            <div class="kpi-value text-success" id="dashProfit">0 KSh</div>
                             <div class="small text-muted">After expenses</div>
                         </div>
                     </div>

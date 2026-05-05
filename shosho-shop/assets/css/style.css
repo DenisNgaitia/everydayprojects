@@ -35,11 +35,22 @@
     --bg-main: #020617;
     --bg-card: #0f172a;
     --text-main: #f8fafc;
-    --text-muted: #94a3b8;
+    --text-muted: #cbd5e1;
     --border: #1e293b;
     --glass: rgba(15, 23, 42, 0.85);
     --glass-border: rgba(30, 41, 59, 0.5);
     --primary-light: rgba(124, 58, 237, 0.1);
+}
+
+[data-theme="dark"] .table, [data-theme="dark"] .table > :not(caption) > * > * {
+    color: var(--text-main);
+    --bs-table-color: var(--text-main);
+    --bs-table-bg: transparent;
+    --bs-table-striped-color: var(--text-main);
+    --bs-table-hover-color: var(--text-main);
+}
+[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+    color: var(--text-main);
 }
 
 body {

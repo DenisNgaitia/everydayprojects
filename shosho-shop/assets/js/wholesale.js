@@ -33,7 +33,7 @@ const Wholesale = {
                         <div class="mt-4 pt-4 border-top">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Total Bulk Price</span>
-                                <h4 class="fw-bold text-primary mb-0" id="wholesaleTotal">0 TZS</h4>
+                                <h4 class="fw-bold text-primary mb-0" id="wholesaleTotal">0 KSh</h4>
                             </div>
                             <div class="mb-4 mt-3">
                                 <label class="form-label small fw-bold text-muted text-uppercase">Initial Deposit (Optional)</label>
@@ -98,7 +98,7 @@ const Wholesale = {
         
         if (this.cart.length === 0) {
             cartDiv.innerHTML = '<div class="text-center py-5 text-muted">No items selected</div>';
-            totalSpan.textContent = '0 TZS';
+            totalSpan.textContent = '0 KSh';
             return;
         }
 

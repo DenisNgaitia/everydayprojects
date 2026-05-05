@@ -27,12 +27,11 @@ function showToast(msg, type = 'info') {
 }
 
 function fmtCurrency(num) {
-    if (isNaN(num)) return '0 TZS';
-    return new Intl.NumberFormat('sw-TZ', { 
-        style: 'currency', 
-        currency: 'TZS',
-        minimumFractionDigits: 0 
-    }).format(num);
+    if (isNaN(num)) return '0 KSh';
+    return new Intl.NumberFormat('en-US', { 
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(num) + ' KSh';
 }
 
 // Global State Manager (Simple)

@@ -1,11 +1,11 @@
 const Analytics = {
-    async render() {
+    render() {
         return `
             <div class="row g-4 mb-4">
                 <div class="col-12 col-md-4">
                     <div class="stat-card">
                         <span class="label">Today's Revenue</span>
-                        <div class="value" id="todayRevenue">0 TZS</div>
+                        <div class="value" id="todayRevenue">0 KSh</div>
                         <div class="small text-success mt-2"><i class="fa fa-arrow-up me-1"></i> Live tracking</div>
                     </div>
                 </div>
