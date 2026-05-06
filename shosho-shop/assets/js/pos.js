@@ -97,6 +97,13 @@ const POS = {
                                 <input type="radio" class="btn-check" name="payment_method" id="pay_mobile" value="mobile_money">
                                 <label class="btn btn-outline-primary flex-grow-1 py-3" for="pay_mobile">Mobile</label>
                             </div>
+                            
+                            <div id="mobileInputGroup" style="display: none;" class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Customer M-Pesa Number (Optional)</label>
+                                <input type="text" id="customerPhone" class="form-control form-control-lg" placeholder="e.g. 0712345678">
+                                <small class="text-muted" style="font-size: 0.75rem;">Improves automatic payment matching.</small>
+                            </div>
+
                             <div id="cashInputGroup">
                                 <input type="number" id="cashReceived" class="form-control form-control-lg mb-3" placeholder="Amount received">
                                 <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
@@ -111,14 +118,41 @@ const POS = {
                     </div>
                 </div>
             </div>
+
+            <!-- Verification Modal -->
+            <div class="modal fade" id="verificationModal" data-bs-backdrop="static" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content glass-card border-0">
+                        <div class="modal-body p-5 text-center">
+                            <div class="spinner-border text-primary mb-4" role="status" style="width: 4rem; height: 4rem;"></div>
+                            <h4 class="fw-bold mb-2">Waiting for M-Pesa...</h4>
+                            <p class="text-muted mb-4">Please ask the customer to complete the payment on their phone.</p>
+                            
+                            <div class="bg-light p-3 rounded-3 text-start mb-4">
+                                <label class="form-label small fw-bold text-muted">Manual Override</label>
+                                <div class="mb-2">
+                                    <input type="text" id="manualMpesaCode" class="form-control" placeholder="Transaction Code (e.g. QGK...)">
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" id="manualCustomerPhone" class="form-control" placeholder="Customer Phone (if not provided)">
+                                </div>
+                                <button class="btn btn-primary w-100" id="verifyManualBtn">Verify Manually</button>
+                            </div>
+
+                            <button class="btn btn-outline-danger w-100" data-bs-dismiss="modal" id="cancelVerificationBtn">Cancel Sale</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
     },
     async init() {
         document.body.appendChild(document.getElementById('receiptModal'));
         document.body.appendChild(document.getElementById('paymentModal'));
+        document.body.appendChild(document.getElementById('verificationModal'));
         const res = await fetch('api/products.php');
         this.products = await res.json();
-        
+
         try {
             const analyticsRes = await fetch('api/analytics.php');
             const analyticsData = await analyticsRes.json();
@@ -164,7 +198,17 @@ const POS = {
         document.getElementById('searchProduct').addEventListener('input', (e) => this.displayProducts(e.target.value));
         document.getElementById('checkoutBtn').onclick = () => this.openPayment();
         document.getElementById('confirmSaleBtn').onclick = () => this.confirmSale();
+        document.getElementById('verifyManualBtn').onclick = () => this.handleManualVerification();
         
+        // Hide cash input when mobile is selected
+        document.querySelectorAll('input[name="payment_method"]').forEach(el => {
+            el.addEventListener('change', (e) => {
+                const isCash = e.target.value === 'cash';
+                document.getElementById('cashInputGroup').style.display = isCash ? 'block' : 'none';
+                document.getElementById('mobileInputGroup').style.display = isCash ? 'none' : 'block';
+            });
+        });
+
         document.getElementById('cashReceived').addEventListener('input', (e) => {
             const received = parseFloat(e.target.value) || 0;
             const change = received - this.cartTotal;
@@ -201,14 +245,14 @@ const POS = {
         }
 
         let filtered = this.products.filter(p => !['Small Bag', 'Medium Bag', 'Large Bag'].includes(p.name));
-        
+
         if (this.currentCategory) {
             filtered = filtered.filter(p => (p.category || 'General') === this.currentCategory);
         }
-        
+
         if (filter) {
-            filtered = filtered.filter(p => 
-                p.name.toLowerCase().includes(filter.toLowerCase()) || 
+            filtered = filtered.filter(p =>
+                p.name.toLowerCase().includes(filter.toLowerCase()) ||
                 (p.category && p.category.toLowerCase().includes(filter.toLowerCase()))
             );
         }
@@ -249,7 +293,7 @@ const POS = {
 
         // Conditional Bag Pricing logic
         const freeBags = subtotalWithoutBags > 300;
-        
+
         this.cartTotal = 0;
         this.cart.forEach(i => {
             if (['Small Bag', 'Medium Bag', 'Large Bag'].includes(i.name) && freeBags) {
@@ -262,7 +306,7 @@ const POS = {
 
         document.getElementById('cartSubtotal').textContent = fmtCurrency(subtotalWithoutBags);
         document.getElementById('cartTotal').textContent = fmtCurrency(this.cartTotal);
-        
+
         const cartDiv = document.getElementById('cartItems');
         if (this.cart.length === 0) {
             cartDiv.innerHTML = '<div class="text-center py-5 text-muted opacity-50">Empty Cart</div>';
@@ -298,13 +342,13 @@ const POS = {
         this.updateCartDisplay();
     },
     clearCart() {
-        if(confirm('Clear all items?')) {
+        if (confirm('Clear all items?')) {
             this.cart = [];
             this.updateCartDisplay();
         }
     },
     openPayment() {
-        if(this.cart.length === 0) return showToast('Cart is empty', 'error');
+        if (this.cart.length === 0) return showToast('Cart is empty', 'error');
         document.getElementById('modalTotal').textContent = fmtCurrency(this.cartTotal);
         bootstrap.Modal.getOrCreateInstance(document.getElementById('paymentModal')).show();
     },
@@ -312,6 +356,19 @@ const POS = {
         const method = document.querySelector('input[name="payment_method"]:checked').value;
         const cashReceived = method === 'cash' ? parseFloat(document.getElementById('cashReceived').value) || 0 : 0;
         
+        let customerPhone = null;
+        if (method === 'mobile_money') {
+            const rawPhone = document.getElementById('customerPhone').value.trim();
+            if (rawPhone) {
+                // Normalize phone to 254...
+                let normalized = rawPhone;
+                if (normalized.startsWith('+')) normalized = normalized.substring(1);
+                if (normalized.startsWith('0')) normalized = '254' + normalized.substring(1);
+                if (normalized.startsWith('7') || normalized.startsWith('1')) normalized = '254' + normalized;
+                customerPhone = normalized;
+            }
+        }
+
         if (method === 'cash' && cashReceived < this.cartTotal) return showToast('Insufficient cash', 'error');
 
         const saleData = {
@@ -319,31 +376,181 @@ const POS = {
             payment_method: method,
             cash_received: cashReceived,
             change_given: Math.max(0, cashReceived - this.cartTotal),
-            items: this.cart.map(i => ({ 
-                product_id: i.id, 
-                unit_price: i.display_price, 
-                quantity: i.quantity, 
-                total: i.display_price * i.quantity 
+            customer_phone: customerPhone,
+            items: this.cart.map(i => ({
+                product_id: i.id,
+                unit_price: i.display_price,
+                quantity: i.quantity,
+                total: i.display_price * i.quantity
             }))
         };
 
         try {
+            const btn = document.getElementById('confirmSaleBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            // If offline, DB might just store it. We assume online for real-time M-Pesa.
             const res = await fetch('api/sales.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(saleData)
             });
 
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+
             if (res.ok) {
                 const data = await res.json();
-                this.showReceipt(data.sale_id, saleData);
-                this.cart = [];
-                this.updateCartDisplay();
                 bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
-                showToast('Sale Success!', 'success');
+
+                if (method === 'mobile_money') {
+                    // Start Verification Flow
+                    this.startPaymentVerification(data.sale_id, saleData);
+                } else {
+                    this.showReceipt(data.sale_id, saleData);
+                    this.cart = [];
+                    this.updateCartDisplay();
+                    showToast('Sale Success!', 'success');
+                }
             }
         } catch (e) { showToast('Network Error', 'error'); }
     },
+
+    startPaymentVerification(saleId, saleData) {
+        this.currentPendingSaleId = saleId;
+        this.currentPendingSaleData = saleData;
+        
+        document.getElementById('manualMpesaCode').value = '';
+        document.getElementById('manualCustomerPhone').value = saleData.customer_phone || '';
+        
+        const verificationModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('verificationModal'));
+        verificationModal.show();
+        
+        // Start polling
+        let attempts = 0;
+        const maxAttempts = 40; // 120 seconds (3s interval)
+        
+        if (this.verificationInterval) clearInterval(this.verificationInterval);
+        
+        this.verificationInterval = setInterval(async () => {
+            attempts++;
+            if (attempts > maxAttempts) {
+                clearInterval(this.verificationInterval);
+                
+                // Cancel sale on timeout
+                try {
+                    await fetch('api/cancel-sale.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sale_id: saleId })
+                    });
+                } catch(e) {}
+
+                showToast('Payment verification timed out. Sale cancelled.', 'error');
+                verificationModal.hide();
+                this.cart = [];
+                this.updateCartDisplay();
+                return;
+            }
+            
+            try {
+                const res = await fetch(`api/check-payment.php?sale_id=${saleId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.payment_status === 'confirmed') {
+                        clearInterval(this.verificationInterval);
+                        verificationModal.hide();
+                        
+                        // Update sale data with manual ID if any
+                        if (data.mpesa_transaction_id) {
+                            this.currentPendingSaleData.mpesa_transaction_id = data.mpesa_transaction_id;
+                        }
+                        
+                        this.showReceipt(saleId, this.currentPendingSaleData);
+                        this.cart = [];
+                        this.updateCartDisplay();
+                        showToast('M-Pesa Payment Confirmed!', 'success');
+                    }
+                }
+            } catch (e) {
+                console.error("Polling error", e);
+            }
+        }, 3000);
+        
+        // Handle cancel button click
+        document.getElementById('cancelVerificationBtn').onclick = async () => {
+            clearInterval(this.verificationInterval);
+            try {
+                await fetch('api/cancel-sale.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sale_id: saleId })
+                });
+            } catch(e) {}
+            
+            this.cart = [];
+            this.updateCartDisplay();
+            showToast('Sale cancelled.', 'info');
+        };
+    },
+
+    async handleManualVerification() {
+        const code = document.getElementById('manualMpesaCode').value.trim();
+        const rawPhone = document.getElementById('manualCustomerPhone').value.trim();
+        if (!code) return showToast('Please enter the transaction code', 'error');
+        if (!this.currentPendingSaleId) return;
+
+        let phone = null;
+        if (rawPhone) {
+            phone = rawPhone;
+            if (phone.startsWith('+')) phone = phone.substring(1);
+            if (phone.startsWith('0')) phone = '254' + phone.substring(1);
+            if (phone.startsWith('7') || phone.startsWith('1')) phone = '254' + phone;
+        }
+
+        const btn = document.getElementById('verifyManualBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('api/verify-manual.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sale_id: this.currentPendingSaleId,
+                    mpesa_transaction_id: code,
+                    customer_phone: phone
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success) {
+                    clearInterval(this.verificationInterval);
+                    bootstrap.Modal.getInstance(document.getElementById('verificationModal')).hide();
+
+                    this.currentPendingSaleData.mpesa_transaction_id = code;
+                    this.currentPendingSaleData.customer_phone = phone || this.currentPendingSaleData.customer_phone;
+                    
+                    this.showReceipt(this.currentPendingSaleId, this.currentPendingSaleData);
+                    this.cart = [];
+                    this.updateCartDisplay();
+                    showToast('Payment verified manually!', 'success');
+                } else {
+                    showToast(data.error || 'Verification failed', 'error');
+                }
+            }
+        } catch (e) {
+            showToast('Network error during verification', 'error');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    },
+
     showReceipt(id, sale) {
         const content = document.getElementById('receiptContent');
         content.innerHTML = `
