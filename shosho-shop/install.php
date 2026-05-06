@@ -111,4 +111,13 @@ $queries = [
 foreach ($queries as $sql) {
     $pdo->exec($sql);
 }
-echo "All tables created successfully! You can now delete install.php for security.";
+
+// Insert default admin user
+$adminEmail = 'Florence';
+$adminPassword = password_hash('Gatavi@123', PASSWORD_BCRYPT);
+$adminName = 'Florence';
+
+$stmt = $pdo->prepare("INSERT IGNORE INTO users (email, password_hash, display_name, role) VALUES (?, ?, ?, 'admin')");
+$stmt->execute([$adminEmail, $adminPassword, $adminName]);
+
+echo "All tables created and admin user added successfully! You can now delete install.php for security.";
