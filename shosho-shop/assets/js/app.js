@@ -29,6 +29,7 @@ const App = {
                     <a class="nav-item" href="#" data-page="pos"><i class="fa fa-cash-register"></i><span>Sell</span></a>
                     <a class="nav-item" href="#" data-page="inventory"><i class="fa fa-boxes"></i><span>Stock</span></a>
                     <a class="nav-item" href="#" data-page="analytics"><i class="fa fa-chart-bar"></i><span>Stats</span></a>
+                    <a class="nav-item" href="#" data-page="b2b"><i class="fa fa-handshake"></i><span>B2B</span></a>
                     <a class="nav-item text-danger" href="#" onclick="App.logout()"><i class="fa fa-power-off"></i><span>Exit</span></a>
                 </nav>
             </div>
@@ -86,6 +87,10 @@ const App = {
             case 'analytics':
                 container.innerHTML = Analytics.render();
                 Analytics.init();
+                break;
+            case 'b2b':
+                container.innerHTML = B2B.render();
+                B2B.init();
                 break;
         }
     },

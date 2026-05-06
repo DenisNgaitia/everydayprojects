@@ -234,10 +234,10 @@ const POS = {
             const cats = [...new Set(this.products.filter(p => !['Small Bag', 'Medium Bag', 'Large Bag'].includes(p.name)).map(p => p.category || 'General'))];
             grid.innerHTML = cats.map(c => `
                 <div class="col-6 col-sm-4 col-md-3">
-                    <div class="pos-card animate-scale h-100 p-4 text-center d-flex flex-column align-items-center justify-content-center" onclick="POS.selectCategory('${c}')" style="background: var(--p-50);">
+                    <div class="pos-card animate-scale h-100 p-4 text-center d-flex flex-column align-items-center justify-content-center" onclick="POS.selectCategory('${c}')" style="background: var(--bg-card); color: var(--text-main);">
                         <i class="fa fa-folder text-primary mb-2" style="font-size: 2rem;"></i>
-                        <h6 class="fw-bold mb-0 text-truncate w-100">${c}</h6>
-                        <span class="text-muted small">${this.products.filter(p => (p.category || 'General') === c && !['Small Bag', 'Medium Bag', 'Large Bag'].includes(p.name)).length} items</span>
+                        <h6 class="fw-bold mb-0 text-truncate w-100" style="color: var(--text-main);">${c}</h6>
+                        <span class="small" style="color: var(--text-muted);">${this.products.filter(p => (p.category || 'General') === c && !['Small Bag', 'Medium Bag', 'Large Bag'].includes(p.name)).length} items</span>
                     </div>
                 </div>
             `).join('');

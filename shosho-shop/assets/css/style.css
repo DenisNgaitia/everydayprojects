@@ -39,18 +39,181 @@
     --border: #1e293b;
     --glass: rgba(15, 23, 42, 0.85);
     --glass-border: rgba(30, 41, 59, 0.5);
-    --primary-light: rgba(124, 58, 237, 0.1);
+    --primary-light: rgba(124, 58, 237, 0.15);
+    --p-50: #1e1b4b;
+    color-scheme: dark;
+
+    /* Override Bootstrap 5 internal variables */
+    --bs-body-color: #f8fafc;
+    --bs-body-bg: #020617;
+    --bs-secondary-color: #cbd5e1;
+    --bs-tertiary-color: #94a3b8;
+    --bs-emphasis-color: #f8fafc;
+    --bs-heading-color: #f8fafc;
+    --bs-link-color: #a78bfa;
+    --bs-border-color: #1e293b;
+    --bs-secondary-bg: #1e293b;
+    --bs-tertiary-bg: #0f172a;
+    color: #f8fafc;
 }
 
-[data-theme="dark"] .table, [data-theme="dark"] .table > :not(caption) > * > * {
+/* ===== DARK MODE GLOBAL OVERRIDES ===== */
+
+/* Force all text elements to use light color */
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3,
+[data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6 {
+    color: #f8fafc !important;
+}
+[data-theme="dark"] p, [data-theme="dark"] label,
+[data-theme="dark"] td, [data-theme="dark"] th,
+[data-theme="dark"] li, [data-theme="dark"] dt, [data-theme="dark"] dd {
+    color: #e2e8f0;
+}
+[data-theme="dark"] span, [data-theme="dark"] div {
+    color: inherit;
+}
+
+/* Bootstrap text-muted override */
+[data-theme="dark"] .text-muted {
+    color: var(--text-muted) !important;
+}
+[data-theme="dark"] .text-secondary {
+    color: #94a3b8 !important;
+}
+
+/* Bootstrap bg-light → dark equivalent */
+[data-theme="dark"] .bg-light {
+    background-color: #1e293b !important;
+    color: var(--text-main) !important;
+}
+[data-theme="dark"] .bg-light-subtle {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+/* Form controls */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: #1e293b;
+    color: var(--text-main);
+    border-color: #334155;
+}
+[data-theme="dark"] .form-control::placeholder {
+    color: #64748b;
+}
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: #1e293b;
+    color: var(--text-main);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+}
+
+/* Modal content */
+[data-theme="dark"] .modal-content {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+}
+
+/* Tables — comprehensive override */
+[data-theme="dark"] .table,
+[data-theme="dark"] .table > :not(caption) > * > * {
     color: var(--text-main);
     --bs-table-color: var(--text-main);
     --bs-table-bg: transparent;
     --bs-table-striped-color: var(--text-main);
     --bs-table-hover-color: var(--text-main);
+    border-color: #1e293b;
 }
 [data-theme="dark"] .table-hover > tbody > tr:hover > * {
     color: var(--text-main);
+    --bs-table-hover-bg: rgba(124, 58, 237, 0.05);
+}
+[data-theme="dark"] thead {
+    border-color: #334155 !important;
+}
+[data-theme="dark"] thead.bg-light {
+    background-color: #0f172a !important;
+}
+
+/* Badges */
+[data-theme="dark"] .badge.bg-light {
+    background-color: #1e293b !important;
+}
+
+/* Border override */
+[data-theme="dark"] .border,
+[data-theme="dark"] .border-bottom,
+[data-theme="dark"] .border-top {
+    border-color: #1e293b !important;
+}
+
+/* Buttons */
+[data-theme="dark"] .btn-light {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: var(--text-main);
+}
+[data-theme="dark"] .btn-light:hover {
+    background-color: #334155;
+    color: #fff;
+}
+[data-theme="dark"] .btn-outline-secondary {
+    border-color: #334155;
+    color: var(--text-muted);
+}
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: #334155;
+    color: #fff;
+}
+[data-theme="dark"] .btn-outline-primary {
+    color: #a78bfa;
+    border-color: #6d28d9;
+}
+
+/* Progress bars */
+[data-theme="dark"] .progress {
+    background-color: #1e293b;
+}
+
+/* Alerts */
+[data-theme="dark"] .alert {
+    color: inherit;
+}
+
+/* Stat card (analytics page) */
+.stat-card {
+    padding: 24px;
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+}
+.stat-card .label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.stat-card .value {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 8px 0;
+}
+
+/* Custom toast */
+.custom-toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 40px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    z-index: 9999;
+    transition: all 0.4s ease;
 }
 
 body {
@@ -171,6 +334,12 @@ body::before {
     overflow: hidden;
     border: 1px solid var(--border);
     transition: all 0.3s ease;
+    color: var(--text-main);
+}
+[data-theme="dark"] .pos-card {
+    background: var(--bg-card) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
 }
 
 .pos-card:active { transform: scale(0.95); }
@@ -179,7 +348,7 @@ body::before {
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
-    background: #f1f5f9;
+    background: var(--border);
 }
 
 /* Receipt View */
@@ -257,4 +426,38 @@ body::before {
 @keyframes rotation {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* B2B Module */
+.b2b-avatar {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+.b2b-avatar-lg {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    font-size: 1.4rem;
+}
+
+.b2b-client-card:hover {
+    border-color: var(--primary) !important;
+}
+
+.b2b-dispatch-card {
+    transition: all 0.2s ease;
+}
+.b2b-dispatch-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Compact nav for extra items */
+@media (max-width: 576px) {
+    .nav-item { padding: 6px 10px; font-size: 0.6rem; }
+    .nav-item i { font-size: 1rem; }
+    .app-nav { min-width: 300px; gap: 2px; padding: 6px 10px; }
 }
