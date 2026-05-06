@@ -1,9 +1,9 @@
 <?php
 // Edit these values with your InfinityFree database details
-$host = '127.0.0.1';
-$dbname = 'shosho_shop';
-$username = 'shosho_user';
-$password = 'shosho123';
+$host = 'sql101.infinityfree.com';
+$dbname = 'if0_41845675_shosho_db';
+$username = 'if0_41845675';
+$password = 'pOcfOdatSkrvI';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
